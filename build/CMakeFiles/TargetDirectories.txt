@@ -1,0 +1,3 @@
+/mnt/c/Users/flag/Documents/leetcode/torchview/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/flag/Documents/leetcode/torchview/build/CMakeFiles/Convert.dir
+/mnt/c/Users/flag/Documents/leetcode/torchview/build/CMakeFiles/edit_cache.dir
