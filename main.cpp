@@ -38,7 +38,7 @@ int main(){
     report* report_pointer = new report;
     int string_id=0;
     // int args_id=0;
-    std::string path="/mnt/c/Users/flag/Documents/leetcode/torchview/build/a100-test-runner_2348370.1657153803477.pt.trace.json";
+    std::string path="a100-test-runner_549810.1668545729102.cu116.pt.trace.json";
     std::string data;
     loadFromFile(path,data);
     
