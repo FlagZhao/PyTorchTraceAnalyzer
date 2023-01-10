@@ -110,6 +110,11 @@ int main()
     report_pointer->reorder();
 
     lasttimestamp = 0;
+
+    unsigned long long start_time = report_pointer->event_list.begin()->timestamp;
+
+    printf("start time:%lld\n", start_time);
+
     int eventid = 0;
     for (Event &i : report_pointer->event_list)
     {
@@ -133,34 +138,24 @@ int main()
         if (event_stack.size() == 0)
         {
             event_stack.push_back(i);
-            // printf();
-            continue;
         }
         else
         {
             auto tail = event_stack.end() - 1;
-            while (tail->timestamp + tail->duration < i.timestamp && event_stack.size() > 0)
+            while (tail->timestamp + tail->duration < i.timestamp + i.duration && event_stack.size() > 0)
             {
                 event_stack.pop_back();
+                tail = event_stack.end() - 1;
             }
 
-            if (event_stack.size() == 0)
-            {
-                event_stack.push_back(i);
-                // printf();
-                continue;
-            }
-            else
-            {
-                i.parent_id = tail->event_id;
-                event_stack.push_back(i);
-            }
+            i.parent_id = tail->event_id;
+            event_stack.push_back(i);
         }
         int temp_parent = i.parent_id;
         // printf("parent id is:%d\n",i.parent_id);
         printf("%d | ", i.event_id);
         printf("parent:%d | ", i.parent_id);
-        printf("time:%zu + %zu | ", i.timestamp, i.duration);
+        printf("time:%zu + %zu | ", i.timestamp - start_time, i.duration);
         printf("%s | ", report_pointer->string_table[i.name].c_str());
         while (temp_parent != -1)
         {

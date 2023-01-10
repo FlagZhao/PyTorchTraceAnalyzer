@@ -23,13 +23,8 @@ Report::~Report()
 {
 }
 
-bool comp(const Event &a, const Event &b)
-{
-    return a.timestamp < b.timestamp;
-}
-
 void Report::reorder()
 {
-    std::sort(this->event_list.begin(), this->event_list.end(), comp);
+    std::sort(this->event_list.begin(), this->event_list.end());
     return;
 }
