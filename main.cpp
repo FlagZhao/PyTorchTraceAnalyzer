@@ -54,44 +54,33 @@ int main()
     {
         auto ph_pair = iter_trace.FindMember("ph");
         auto ph = ph_pair->value.GetString();
-        // std::cout<<ph<<std::endl;
-        std::string ph_temp = ph;
-        if (ph_temp != "X")
+        if (std::string(ph) != "X")
         {
             continue;
         }
 
         auto name_pair = iter_trace.FindMember("name");
         auto name = name_pair->value.GetString();
+
         auto cat_pair = iter_trace.FindMember("cat");
         auto cat = cat_pair->value.GetString();
+
         auto pid_pair = iter_trace.FindMember("pid");
-        int pid;
-        if (pid_pair->value.GetType() == kStringType)
-        {
-            pid = -1;
-        }
-        else
-        {
-            pid = pid_pair->value.GetInt();
-        }
+        auto pid = pid_pair->value.GetType() == kNumberType
+                       ? pid_pair->value.GetInt()
+                       : -1;
 
         auto tid_pair = iter_trace.FindMember("tid");
-        int tid;
-        if (tid_pair->value.GetType() == kStringType)
-        {
-            tid = -1;
-        }
-        else
-        {
-            tid = pid_pair->value.GetInt();
-        }
+        auto tid = tid_pair->value.GetType() == kNumberType
+                       ? tid_pair->value.GetInt()
+                       : -1;
 
         auto timestamp_pair = iter_trace.FindMember("ts");
         auto timestamp = timestamp_pair->value.GetUint64();
+
         auto duration_pair = iter_trace.FindMember("dur");
         auto duration = duration_pair->value.GetUint64();
-        // printf("test ");
+
         auto args_pair = iter_trace.FindMember("args");
         auto args = stringify<>(args_pair->value);
 
@@ -100,16 +89,15 @@ int main()
             lasttimestamp = timestamp;
         }
 
-        int ph_id, cat_id, name_id, args_id, stack_id;
-        cat_id = string_id++;
+        int ph_id = 0; // unused
+        int cat_id = string_id++;
         report_pointer->string_table.push_back(cat);
-        name_id = string_id++;
+        int name_id = string_id++;
         report_pointer->string_table.push_back(name);
-        args_id = string_id++;
+        int args_id = string_id++;
         report_pointer->string_table.push_back(args);
-        ph_id = 0; // unused
-        stack_id = 0; // unused
-        // stack_id=string_id++;
+        int stack_id = 0; // unused
+        // int stack_id=string_id++;
         // report_pointer.call_stack.pushback(stack_id);
 
         Event event(ph_id, cat_id, name_id, pid, tid, timestamp, duration, args_id, stack_id);
@@ -123,9 +111,8 @@ int main()
 
     lasttimestamp = 0;
     int eventid = 0;
-    for (auto &i : report_pointer->event_list)
+    for (Event &i : report_pointer->event_list)
     {
-        /* code */
         // printf("last is %lld, this is %lld\n",lasttimestamp,i.timestamp);
         if (i.timestamp >= lasttimestamp)
         {
@@ -173,12 +160,14 @@ int main()
         // printf("parent id is:%d\n",i.parent_id);
         printf("%d | ", i.event_id);
         printf("parent:%d | ", i.parent_id);
+        printf("time:%zu + %zu | ", i.timestamp, i.duration);
+        printf("%s | ", report_pointer->string_table[i.name].c_str());
         while (temp_parent != -1)
         {
             std::string func_name = report_pointer->string_table[report_pointer->event_list[temp_parent].name];
             printf("%s | ", func_name.c_str());
             temp_parent = report_pointer->event_list[temp_parent].parent_id;
         }
-        printf("\n");
+        printf("\n\n");
     }
 }
