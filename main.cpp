@@ -139,16 +139,15 @@ int main()
         else
         {
             auto tail = event_stack.end() - 1;
-            while (tail->timestamp + tail->duration < i.timestamp && event_stack.size() > 0)
+            while (tail->timestamp + tail->duration < i.timestamp + i.duration && event_stack.size() > 0)
             {
                 event_stack.pop_back();
+                tail = event_stack.end() - 1;
             }
 
             if (event_stack.size() == 0)
             {
                 event_stack.push_back(i);
-                // printf();
-                continue;
             }
             else
             {
