@@ -16,9 +16,7 @@ public:
     int event_id;
     Event(int ph, int cat, int name, int pid, int tid, unsigned long long timestamp, unsigned long long duration, int args_id, int stack_id);
     ~Event();
-    // event operater>(const event& a, const event& b){
-    //     return a.timestamp>b.timestamp;
-    // };
+    bool operator<(const Event& event);
 };
 
 Event::Event(int ph, int cat, int name, int pid, int tid, unsigned long long timestamp, unsigned long long duration, int args_id, int stack_id)
@@ -38,4 +36,18 @@ Event::Event(int ph, int cat, int name, int pid, int tid, unsigned long long tim
 
 Event::~Event()
 {
+}
+
+bool Event::operator<(const Event &event)
+{
+    if (this->timestamp == event.timestamp)
+    {
+        // long duration first
+        return this->duration > event.duration;
+    }
+    else
+    {
+        // early start first
+        return this->timestamp < event.timestamp;
+    }
 }
