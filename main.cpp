@@ -12,167 +12,173 @@
 // using namespace std;
 using namespace rapidjson;
 
-void loadFromFile(std::string & path, std::string & data){
+void loadFromFile(const std::string &path, std::string &data)
+{
     std::ifstream ifile;
-    ifile.open(path,std::ios::in);
+    ifile.open(path, std::ios::in);
     std::ostringstream ostring;
     ostring << ifile.rdbuf();
-    data=ostring.str();
+    data = ostring.str();
 }
 
-template<typename T>
-std::string stringify(const T& o)
+template <typename T>
+std::string stringify(const T &o)
 {
-	StringBuffer sb;
-	Writer<StringBuffer> writer(sb);
-	o.Accept(writer);
-	return sb.GetString();
+    StringBuffer sb;
+    Writer<StringBuffer> writer(sb);
+    o.Accept(writer);
+    return sb.GetString();
 }
 
-
-
-
-int main(){
-    
+int main()
+{
     printf("Test\n");
-    report* report_pointer = new report;
-    int string_id=0;
+    Report *report_pointer = new Report;
+    int string_id = 0;
     // int args_id=0;
-    std::string path="a100-test-runner_549810.1668545729102.cu116.pt.trace.json";
+    std::string path = "a100-test-runner_549810.1668545729102.cu116.pt.trace.json";
     std::string data;
-    loadFromFile(path,data);
-    
+    loadFromFile(path, data);
+
     Document d;
     d.Parse(data.c_str());
     StringBuffer buffer;
     Writer<StringBuffer> writer(buffer);
     d.Accept(writer);
 
-    int X_event_count=0;
-    
-    auto traces=d.FindMember("traceEvents");
+    auto traces = d.FindMember("traceEvents");
     // auto traces_array=traces->value.GetArray();
-    unsigned long lasttimestamp;
+    unsigned long long lasttimestamp = 0;
 
-    for (auto& iter_trace : traces->value.GetArray())
+    for (auto &iter_trace : traces->value.GetArray())
     {
-        /* code */
-
-        auto ph_pair=iter_trace.FindMember("ph");
-        auto ph=ph_pair->value.GetString();
+        auto ph_pair = iter_trace.FindMember("ph");
+        auto ph = ph_pair->value.GetString();
         // std::cout<<ph<<std::endl;
-        std::string ph_temp=ph;
-        if( ph_temp != "X")
+        std::string ph_temp = ph;
+        if (ph_temp != "X")
+        {
             continue;
-        
-        // printf("Event %d\n",X_event_count++);
+        }
 
-        auto name_pair= iter_trace.FindMember("name");
-        auto name= name_pair->value.GetString();
-        auto cat_pair= iter_trace.FindMember("cat");
-        auto cat= cat_pair->value.GetString();
-        auto pid_pair= iter_trace.FindMember("pid");
+        auto name_pair = iter_trace.FindMember("name");
+        auto name = name_pair->value.GetString();
+        auto cat_pair = iter_trace.FindMember("cat");
+        auto cat = cat_pair->value.GetString();
+        auto pid_pair = iter_trace.FindMember("pid");
         int pid;
-        if(pid_pair->value.GetType() == 5){
-            pid=-1;
-        }else{
-            pid= pid_pair->value.GetInt();
+        if (pid_pair->value.GetType() == kStringType)
+        {
+            pid = -1;
+        }
+        else
+        {
+            pid = pid_pair->value.GetInt();
         }
 
-        auto tid_pair= iter_trace.FindMember("tid");
+        auto tid_pair = iter_trace.FindMember("tid");
         int tid;
-        if(tid_pair->value.GetType() == 5){
-            tid=-1;
-        }else{
-            tid= pid_pair->value.GetInt();
+        if (tid_pair->value.GetType() == kStringType)
+        {
+            tid = -1;
+        }
+        else
+        {
+            tid = pid_pair->value.GetInt();
         }
 
-        auto timestamp_pair= iter_trace.FindMember("ts");
-        auto timestamp= timestamp_pair->value.GetUint64();
-        auto duration_pair= iter_trace.FindMember("dur");
-        auto duration= duration_pair->value.GetUint64();
+        auto timestamp_pair = iter_trace.FindMember("ts");
+        auto timestamp = timestamp_pair->value.GetUint64();
+        auto duration_pair = iter_trace.FindMember("dur");
+        auto duration = duration_pair->value.GetUint64();
         // printf("test ");
-        auto args_pair= iter_trace.FindMember("args");
-        auto args= stringify<>(args_pair->value);
-        
-        if(timestamp>lasttimestamp){
-            lasttimestamp=timestamp;
-        }else{
-            // printf("Unordered\n");
-            // break;
+        auto args_pair = iter_trace.FindMember("args");
+        auto args = stringify<>(args_pair->value);
+
+        if (timestamp > lasttimestamp)
+        {
+            lasttimestamp = timestamp;
         }
 
-        int ph_id,cat_id,name_id,args_id,stack_id;
-        cat_id=string_id++;
+        int ph_id, cat_id, name_id, args_id, stack_id;
+        cat_id = string_id++;
         report_pointer->string_table.push_back(cat);
-        name_id=string_id++;
+        name_id = string_id++;
         report_pointer->string_table.push_back(name);
-        args_id=string_id++;
+        args_id = string_id++;
         report_pointer->string_table.push_back(args);
-        stack_id=0;
+        ph_id = 0; // unused
+        stack_id = 0; // unused
         // stack_id=string_id++;
-        // reprot_pointer.call_stack.pushback(stack_id);
+        // report_pointer.call_stack.pushback(stack_id);
 
-        event event_temp=event(ph_id,cat_id,name_id,pid,tid,timestamp,duration,args_id,stack_id);
+        Event event(ph_id, cat_id, name_id, pid, tid, timestamp, duration, args_id, stack_id);
 
-
-        report_pointer->event_list.push_back(event_temp);       
+        report_pointer->event_list.push_back(event);
     }
 
-    printf("size of event list is %d\n",report_pointer->event_list.size()); 
+    printf("size of event list is %zu\n", report_pointer->event_list.size());
     // std::sort();
     report_pointer->reorder();
 
-    lasttimestamp=0;
+    lasttimestamp = 0;
     int eventid = 0;
-    for (auto& i : report_pointer->event_list)
+    for (auto &i : report_pointer->event_list)
     {
         /* code */
         // printf("last is %lld, this is %lld\n",lasttimestamp,i.timestamp);
-        if(i.timestamp>lasttimestamp){
-            lasttimestamp=i.timestamp;
-        }else{
-            // printf("Unordered\n");
+        if (i.timestamp >= lasttimestamp)
+        {
+            lasttimestamp = i.timestamp;
         }
-        i.event_id=eventid++;
+        else
+        {
+            printf("Unordered\n");
+            return 0;
+        }
+        i.event_id = eventid++;
     }
-    printf("total event num is %d\n",eventid);
-    std::vector<event> event_stack;
-    for(auto& i : report_pointer->event_list)
+    printf("total event num is %d\n", eventid);
+
+    std::vector<Event> event_stack;
+    for (Event &i : report_pointer->event_list)
     {
-        if(event_stack.size()==0){
+        if (event_stack.size() == 0)
+        {
             event_stack.push_back(i);
             // printf();
             continue;
         }
-        else{
-            auto tail=event_stack.end()-1;
-            while(tail->timestamp+tail->duration < i.timestamp && event_stack.size()>0){
+        else
+        {
+            auto tail = event_stack.end() - 1;
+            while (tail->timestamp + tail->duration < i.timestamp && event_stack.size() > 0)
+            {
                 event_stack.pop_back();
             }
-            
-            if(event_stack.size()==0){
+
+            if (event_stack.size() == 0)
+            {
                 event_stack.push_back(i);
                 // printf();
                 continue;
-            }else{
-                i.parent_id=tail->event_id;
+            }
+            else
+            {
+                i.parent_id = tail->event_id;
                 event_stack.push_back(i);
             }
-
         }
-        int temp_parent=i.parent_id;
-        printf("parent id is:%d\n",i.parent_id);
-        while(temp_parent!=-1){
-            printf("%d|",temp_parent);
-            std::string func_name=report_pointer->string_table[report_pointer->event_list[temp_parent].name];
-            printf("%s|",func_name.c_str());
-            temp_parent=report_pointer->event_list[temp_parent].parent_id;
+        int temp_parent = i.parent_id;
+        // printf("parent id is:%d\n",i.parent_id);
+        printf("%d | ", i.event_id);
+        printf("parent:%d | ", i.parent_id);
+        while (temp_parent != -1)
+        {
+            std::string func_name = report_pointer->string_table[report_pointer->event_list[temp_parent].name];
+            printf("%s | ", func_name.c_str());
+            temp_parent = report_pointer->event_list[temp_parent].parent_id;
         }
         printf("\n");
-        
     }
-    
-
-    // printf(data.c_str());
 }
