@@ -4,6 +4,8 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+#include <algorithm>
+
 using namespace rapidjson;
 
 Tree::Tree()
@@ -32,10 +34,9 @@ void Tree::build(const std::string &data)
     d.Accept(writer);
 
     auto traces = d.FindMember("traceEvents");
-    unsigned long long lasttimestamp = 0;
     int string_id = 0;
 
-    for (auto &iter_trace : traces->value.GetArray())
+    for (const Value &iter_trace : traces->value.GetArray())
     {
         auto ph_pair = iter_trace.FindMember("ph");
         auto ph = ph_pair->value.GetString();
@@ -69,11 +70,6 @@ void Tree::build(const std::string &data)
         auto args_pair = iter_trace.FindMember("args");
         auto args = stringify<>(args_pair->value);
 
-        if (timestamp > lasttimestamp)
-        {
-            lasttimestamp = timestamp;
-        }
-
         int cat_id = string_id++;
         string_table.push_back(cat);
         int name_id = string_id++;
@@ -85,18 +81,15 @@ void Tree::build(const std::string &data)
 
         event_list.push_back(event);
     }
-
     printf("size of event list is %zu\n", event_list.size());
 
     std::sort(event_list.begin(), event_list.end());
 
-    lasttimestamp = 0;
-
     start_time = event_list.begin()->timestamp;
-
     printf("start time:%lld\n", start_time);
 
     int eventid = 0;
+    uint64_t lasttimestamp = 0;
     for (Event &i : event_list)
     {
         if (i.timestamp >= lasttimestamp)
@@ -122,7 +115,8 @@ void Tree::build(const std::string &data)
         else
         {
             auto tail = event_stack.end() - 1;
-            while (tail->timestamp + tail->duration < i.timestamp + i.duration && event_stack.size() > 0)
+            while (tail->timestamp + tail->duration < i.timestamp + i.duration &&
+                   event_stack.size() > 0)
             {
                 event_stack.pop_back();
                 tail = event_stack.end() - 1;
@@ -136,7 +130,7 @@ void Tree::build(const std::string &data)
 
 void Tree::print()
 {
-    for(const Event &event : event_list)
+    for (const Event &event : event_list)
     {
         int temp_parent = event.parent_id;
         printf("%5d | parent: %5d | time: %6zu + %6zu | %s",

@@ -1,6 +1,12 @@
 #include "util/event.h"
 
-Event::Event(int cat, int name, int pid, int tid, unsigned long long timestamp, unsigned long long duration, int args_id)
+Event::Event(const int &cat,
+             const int &name,
+             const int &pid,
+             const int &tid,
+             const uint64_t &timestamp,
+             const uint64_t &duration,
+             const int &args_id)
 {
     this->cat = cat;
     this->name = name;

@@ -4,14 +4,13 @@
 #include "event.h"
 #include <vector>
 #include <string>
-#include <algorithm>
 
 class Tree
 {
 public:
     std::vector<Event> event_list;
     std::vector<std::string> string_table;
-    unsigned long long start_time;
+    uint64_t start_time;
     Tree();
     ~Tree();
     void build(const std::string &data);

@@ -1,6 +1,8 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#include <stdint.h>
+
 class Event
 {
 public:
@@ -8,12 +10,18 @@ public:
     int name;
     int pid;
     int tid;
-    unsigned long long timestamp;
-    unsigned long long duration;
+    uint64_t timestamp;
+    uint64_t duration;
     int args_id;
     int parent_id;
     int event_id;
-    Event(int cat, int name, int pid, int tid, unsigned long long timestamp, unsigned long long duration, int args_id);
+    Event(const int &cat,
+          const int &name,
+          const int &pid,
+          const int &tid,
+          const uint64_t &timestamp,
+          const uint64_t &duration,
+          const int &args_id);
     ~Event();
     bool operator<(const Event &event);
 };
