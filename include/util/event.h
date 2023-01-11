@@ -1,7 +1,8 @@
+#ifndef EVENT_H
+#define EVENT_H
+
 class Event
 {
-private:
-    /* data */
 public:
     int ph;
     int cat;
@@ -16,7 +17,7 @@ public:
     int event_id;
     Event(int ph, int cat, int name, int pid, int tid, unsigned long long timestamp, unsigned long long duration, int args_id, int stack_id);
     ~Event();
-    bool operator<(const Event& event);
+    bool operator<(const Event &event);
 };
 
 Event::Event(int ph, int cat, int name, int pid, int tid, unsigned long long timestamp, unsigned long long duration, int args_id, int stack_id)
@@ -51,3 +52,5 @@ bool Event::operator<(const Event &event)
         return this->timestamp < event.timestamp;
     }
 }
+
+#endif // EVENT_H
