@@ -43,10 +43,74 @@ int main()
         flops_list.push_back(flops);
     }
 
-    for (const Flops &flops : flops_list)
+    uint64_t start_time;
+    for (auto i = flops_list.begin(); i < flops_list.end(); i++)
     {
-        printf("%6zu, %.2f, %5zu\n", flops.timestamp, flops.gpu_fp32active, flops.duration);
+        if (i->gpu_fp32active > 0)
+        {
+            start_time = i->timestamp - i->duration;
+            break;
+        }
     }
+
+    uint64_t end_time;
+    for (auto i = flops_list.end() - 1; i > flops_list.begin(); i--)
+    {
+        if (i->gpu_fp32active > 0)
+        {
+            end_time = i->timestamp;
+            break;
+        }
+    }
+
+    if (start_time < end_time)
+    {
+        printf("Trace starts at %zu and ends at %zu.\n", start_time, end_time);
+    }
+    else
+    {
+        printf("Invalid flops trace.\n");
+        return 0;
+    }
+
+    // for (const Flops &flops : flops_list)
+    // {
+    //     printf("%6zu, %.2f, %5zu\n", flops.timestamp, flops.gpu_fp32active, flops.duration);
+    // }
+
+    uint64_t lookup_start;
+    uint64_t lookup_end;
+    uint64_t iter_length = (end_time - start_time) / 10;
+    printf("Each iteration is %zu us long.\n", iter_length);
+    printf("Please input lookup time range: ");
+    std::cin >> lookup_start >> lookup_end;
+
+    double fp32active_sum = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        // Lookup time range projected to current iteration
+        const uint64_t iter_start = start_time + iter_length * i + lookup_start;
+        const uint64_t iter_end = start_time + iter_length * i + lookup_end;
+        for (const Flops &flops : flops_list)
+        {
+            // Time range of this peice of flops trace
+            const uint64_t flops_start = flops.timestamp - flops.duration;
+            const uint64_t flops_end = flops.timestamp;
+            if (flops_end > iter_start && flops_start < iter_end)
+            {
+                const int time = static_cast<int>(
+                    std::min(iter_end, flops_end) - std::max(iter_start, flops_start));
+                fp32active_sum += flops.gpu_fp32active * time;
+            }
+            else
+            {
+                continue;
+            }
+        }
+    }
+    double fp32active_avg = fp32active_sum / static_cast<int>(lookup_end - lookup_start) / 10;
+
+    printf("Average fp32active is %f", fp32active_avg);
 
     return 0;
 }
