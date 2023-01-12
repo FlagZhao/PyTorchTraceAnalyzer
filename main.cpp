@@ -6,30 +6,24 @@
 #include <vector>
 #include <iostream>
 
-void loadFromFile(const std::string &path, std::string &data)
-{
-    std::ifstream ifile;
-    ifile.open(path, std::ios::in);
-    std::ostringstream ostring;
-    ostring << ifile.rdbuf();
-    data = ostring.str();
-}
+using namespace std::string_literals;
 
 int main()
 {
-    Tree tree;
-    std::string json_path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json";
-    std::string data;
-    loadFromFile(json_path, data);
+    std::string path, line;
+    std::ifstream ifile;
 
-    // tree.build(data);
+    // path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json"s;
+    // ifile.open(path, std::ios::in);
+    // std::getline(ifile, line, '\0');
+
+    // Tree tree;
+    // tree.build(line);
     // tree.print();
 
-    std::string csv_path = "resnet18_all_metrics.train.csv";
-    std::ifstream ifile;
-    ifile.open(csv_path, std::ios::in);
-    std::string line;
-    std::getline(ifile, line);
+    path = "resnet18_all_metrics.train.csv"s;
+    ifile.open(path, std::ios::in);
+    std::getline(ifile, line); // Ignore table header
 
     std::vector<Flops> flops_list;
     while (std::getline(ifile, line))
@@ -49,7 +43,7 @@ int main()
         flops_list.push_back(flops);
     }
 
-    for (Flops flops : flops_list)
+    for (const Flops &flops : flops_list)
     {
         printf("%6zu, %.2f, %5zu\n", flops.timestamp, flops.gpu_fp32active, flops.duration);
     }
