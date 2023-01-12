@@ -86,26 +86,29 @@ int main()
     std::cin >> lookup_start >> lookup_end;
 
     double fp32active_sum = 0;
-    for (int i = 0; i < 10; i++)
+    // Lookup time range projected to the first iteration
+    uint64_t iter_start = start_time + lookup_start;
+    uint64_t iter_end = start_time + lookup_end;
+    for (const Flops &flops : flops_list)
     {
-        // Lookup time range projected to current iteration
-        const uint64_t iter_start = start_time + iter_length * i + lookup_start;
-        const uint64_t iter_end = start_time + iter_length * i + lookup_end;
-        for (const Flops &flops : flops_list)
+        // Time range of this peice of flops trace
+        const uint64_t flops_start = flops.timestamp - flops.duration;
+        const uint64_t flops_end = flops.timestamp;
+        if (flops_end > iter_start && flops_start < iter_end)
         {
-            // Time range of this peice of flops trace
-            const uint64_t flops_start = flops.timestamp - flops.duration;
-            const uint64_t flops_end = flops.timestamp;
-            if (flops_end > iter_start && flops_start < iter_end)
+            const int time = static_cast<int>(
+                std::min(iter_end, flops_end) - std::max(iter_start, flops_start));
+            fp32active_sum += flops.gpu_fp32active * time;
+            if (flops_end >= iter_end)
             {
-                const int time = static_cast<int>(
-                    std::min(iter_end, flops_end) - std::max(iter_start, flops_start));
-                fp32active_sum += flops.gpu_fp32active * time;
+                // Move on to the next iteration
+                iter_start += iter_length;
+                iter_end += iter_length;
             }
-            else
-            {
-                continue;
-            }
+        }
+        else
+        {
+            continue;
         }
     }
     double fp32active_avg = fp32active_sum / static_cast<int>(lookup_end - lookup_start) / 10;
