@@ -1,24 +1,18 @@
 #include "util/metrics.h"
 #include "util/tree.h"
 
-#include <fstream>
 #include <string>
-#include <vector>
 #include <iostream>
 
 using namespace std::string_literals;
 
 int main()
 {
-    std::string path, line;
-    std::ifstream ifile;
+    std::string path;
 
     // path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json"s;
-    // ifile.open(path, std::ios::in);
-    // std::getline(ifile, line, '\0');
-
     // Tree tree;
-    // tree.build(line);
+    // tree.buildFromFile(path);
     // tree.print();
 
     path = "resnet18_all_metrics.train.csv"s;
