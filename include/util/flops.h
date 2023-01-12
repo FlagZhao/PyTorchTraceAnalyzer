@@ -9,7 +9,9 @@ public:
     uint64_t timestamp;
     float gpu_fp32active;
     uint64_t duration;
-    Flops(uint64_t timestamp, float gpu_fp32active, uint64_t duration);
+    Flops(const uint64_t &timestamp,
+          const float &gpu_fp32active,
+          const uint64_t &duration);
     ~Flops();
 };
 

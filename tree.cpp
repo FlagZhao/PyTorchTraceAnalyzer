@@ -5,6 +5,7 @@
 #include "rapidjson/stringbuffer.h"
 
 #include <algorithm>
+#include <fstream>
 
 using namespace rapidjson;
 
@@ -147,4 +148,12 @@ void Tree::print()
         // }
         printf("\n");
     }
+}
+
+void Tree::buildFromFile(const std::string &path)
+{
+    std::string data;
+    std::ifstream ifile(path, std::ios::in);
+    std::getline(ifile, data, '\0');
+    this->build(data);
 }

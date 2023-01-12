@@ -14,6 +14,7 @@ public:
     Tree();
     ~Tree();
     void build(const std::string &data);
+    void buildFromFile(const std::string &path);
     void print();
 };
 
