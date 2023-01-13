@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <fstream>
 
+using namespace std::string_literals;
 using namespace rapidjson;
 
 Tree::Tree()
@@ -50,7 +51,13 @@ void Tree::build(const std::string &data)
         auto name = name_pair->value.GetString();
 
         auto cat_pair = iter_trace.FindMember("cat");
-        auto cat = cat_pair->value.GetString();
+        auto cat_str = std::string(cat_pair->value.GetString());
+        auto cat =
+            cat_str == "python_function"s ? Event::python_function
+            : cat_str == "cpu_op"s        ? Event::cpu_op
+            : cat_str == "cuda_runtime"s  ? Event::cuda_runtime
+            : cat_str == "kernel"s        ? Event::kernel
+                                          : Event::none;
 
         auto pid_pair = iter_trace.FindMember("pid");
         auto pid = pid_pair->value.GetType() == kNumberType
@@ -71,18 +78,16 @@ void Tree::build(const std::string &data)
         auto args_pair = iter_trace.FindMember("args");
         auto args = stringify<>(args_pair->value);
 
-        int cat_id = string_id++;
-        string_table.push_back(cat);
         int name_id = string_id++;
         string_table.push_back(name);
         int args_id = string_id++;
         string_table.push_back(args);
 
-        Event event(cat_id, name_id, pid, tid, timestamp, duration, args_id);
+        Event event(cat, name_id, pid, tid, timestamp, duration, args_id);
 
-        switch (pid)
+        switch (cat)
         {
-        case 0:
+        case Event::kernel:
             kernel_list.push_back(event);
             break;
         default:
@@ -147,11 +152,11 @@ void Tree::print()
                event.parent_id,
                event.timestamp - start_time,
                event.duration,
-               string_table[event.name].c_str());
+               string_table[event.name_id].c_str());
         // int temp_parent = event.parent_id;
         // while (temp_parent != -1)
         // {
-        //     std::string func_name = string_table[event_list[temp_parent].name];
+        //     std::string func_name = string_table[event_list[temp_parent].name_id];
         //     printf(" | %s", func_name.c_str());
         //     temp_parent = event_list[temp_parent].parent_id;
         // }
