@@ -12,7 +12,8 @@ int main()
 
     // path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json"s;
     // Tree tree;
-    // tree.buildFromFile(path);
+    // tree.readFromFile(path);
+    // tree.build();
     // tree.print();
 
     path = "resnet18_all_metrics.train.csv"s;

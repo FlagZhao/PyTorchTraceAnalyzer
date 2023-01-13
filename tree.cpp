@@ -27,7 +27,7 @@ std::string stringify(const T &o)
     return sb.GetString();
 }
 
-void Tree::build(const std::string &data)
+void Tree::read(const std::string &data)
 {
     Document d;
     d.Parse(data.c_str());
@@ -90,6 +90,14 @@ void Tree::build(const std::string &data)
         case Event::kernel:
             kernel_list.push_back(event);
             break;
+        case Event::none:
+            if (tid_pair->value.GetType() == kStringType &&
+                std::string(tid_pair->value.GetString()) == "PyTorch Profiler"s)
+            {
+                start_time = event.timestamp;
+                printf("start time: %" PRIi64 "\n", start_time);
+            }
+            break;
         default:
             event_list.push_back(event);
         }
@@ -99,9 +107,6 @@ void Tree::build(const std::string &data)
 
     std::sort(event_list.begin(), event_list.end());
     std::sort(kernel_list.begin(), kernel_list.end());
-
-    start_time = event_list.begin()->timestamp;
-    printf("start time: %" PRIi64 "\n", start_time);
 
     int eventid = 0;
     int64_t lasttimestamp = 0;
@@ -119,7 +124,18 @@ void Tree::build(const std::string &data)
         i.event_id = eventid++;
     }
     printf("total event num is %d\n", eventid);
+}
 
+void Tree::readFromFile(const std::string &path)
+{
+    std::string data;
+    std::ifstream ifile(path, std::ios::in);
+    std::getline(ifile, data, '\0');
+    read(data);
+}
+
+void Tree::build()
+{
     std::vector<Event> event_stack;
     for (Event &i : event_list)
     {
@@ -162,12 +178,4 @@ void Tree::print()
         // }
         printf("\n");
     }
-}
-
-void Tree::buildFromFile(const std::string &path)
-{
-    std::string data;
-    std::ifstream ifile(path, std::ios::in);
-    std::getline(ifile, data, '\0');
-    this->build(data);
 }
