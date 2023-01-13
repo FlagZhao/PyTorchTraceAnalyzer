@@ -10,8 +10,8 @@ public:
     int name;
     int pid;
     int tid;
-    uint64_t timestamp;
-    uint64_t duration;
+    int64_t timestamp;
+    int duration;
     int args_id;
     int parent_id;
     int event_id;
@@ -19,8 +19,8 @@ public:
           const int &name,
           const int &pid,
           const int &tid,
-          const uint64_t &timestamp,
-          const uint64_t &duration,
+          const int64_t &timestamp,
+          const int &duration,
           const int &args_id);
     ~Event();
     bool operator<(const Event &event);

@@ -29,9 +29,9 @@ bool Metrics::readFromFile(const std::string &path)
         std::getline(istring, gpu_fp32active_str, ',');
         std::getline(istring, duration_str, ',');
 
-        uint64_t timestamp = static_cast<int>(std::stof(timestamp_str) * 1000);
+        int timestamp = static_cast<int>(std::stof(timestamp_str) * 1000);
         float gpu_fp32active = std::stof(gpu_fp32active_str);
-        uint64_t duration = static_cast<int>(std::stof(duration_str) * 1000);
+        int duration = static_cast<int>(std::stof(duration_str) * 1000);
 
         Flops flops(timestamp, gpu_fp32active, duration);
         flops_list.push_back(flops);
@@ -57,7 +57,7 @@ bool Metrics::readFromFile(const std::string &path)
 
     if (start_time < end_time)
     {
-        printf("Trace starts at %zu and ends at %zu.\n", start_time, end_time);
+        printf("Trace starts at %d and ends at %d.\n", start_time, end_time);
         return true;
     }
     else
@@ -67,24 +67,23 @@ bool Metrics::readFromFile(const std::string &path)
     }
 }
 
-double Metrics::lookup(const uint64_t lookup_start, const uint64_t lookup_end)
+double Metrics::lookup(const int &lookup_start, const int &lookup_end)
 {
     double fp32active_sum = 0;
-    uint64_t iter_length = (end_time - start_time) / 10;
+    int iter_length = (end_time - start_time) / 10;
 
     // Lookup time range projected to the first iteration
-    uint64_t iter_start = start_time + lookup_start;
-    uint64_t iter_end = start_time + lookup_end;
+    int iter_start = start_time + lookup_start;
+    int iter_end = start_time + lookup_end;
     for (const Flops &flops : flops_list)
     {
         // Time range of this peice of flops trace
-        const uint64_t flops_start = flops.timestamp - flops.duration;
-        const uint64_t flops_end = flops.timestamp;
+        const int flops_start = flops.timestamp - flops.duration;
+        const int flops_end = flops.timestamp;
         if (flops_end > iter_start && flops_start < iter_end)
         {
-            const int time = static_cast<int>(
-                std::min(iter_end, flops_end) - std::max(iter_start, flops_start));
-            fp32active_sum += flops.gpu_fp32active * time;
+            fp32active_sum += flops.gpu_fp32active *
+                              (std::min(iter_end, flops_end) - std::max(iter_start, flops_start));
             if (flops_end >= iter_end)
             {
                 // Move on to the next iteration
@@ -97,13 +96,13 @@ double Metrics::lookup(const uint64_t lookup_start, const uint64_t lookup_end)
             continue;
         }
     }
-    return fp32active_sum / static_cast<int>(lookup_end - lookup_start) / 10;
+    return fp32active_sum / (lookup_end - lookup_start) / 10;
 }
 
 void Metrics::print()
 {
     for (const Flops &flops : flops_list)
     {
-        printf("%6zu, %.2f, %5zu\n", flops.timestamp, flops.gpu_fp32active, flops.duration);
+        printf("%6d, %.2f, %5d\n", flops.timestamp, flops.gpu_fp32active, flops.duration);
     }
 }

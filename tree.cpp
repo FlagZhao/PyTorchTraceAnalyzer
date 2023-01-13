@@ -63,10 +63,10 @@ void Tree::build(const std::string &data)
                        : -1;
 
         auto timestamp_pair = iter_trace.FindMember("ts");
-        auto timestamp = timestamp_pair->value.GetUint64();
+        auto timestamp = timestamp_pair->value.GetInt64();
 
         auto duration_pair = iter_trace.FindMember("dur");
-        auto duration = duration_pair->value.GetUint64();
+        auto duration = duration_pair->value.GetInt();
 
         auto args_pair = iter_trace.FindMember("args");
         auto args = stringify<>(args_pair->value);
@@ -87,10 +87,10 @@ void Tree::build(const std::string &data)
     std::sort(event_list.begin(), event_list.end());
 
     start_time = event_list.begin()->timestamp;
-    printf("start time:%lld\n", start_time);
+    printf("start time: %" PRIi64 "\n", start_time);
 
     int eventid = 0;
-    uint64_t lasttimestamp = 0;
+    int64_t lasttimestamp = 0;
     for (Event &i : event_list)
     {
         if (i.timestamp >= lasttimestamp)
@@ -133,13 +133,13 @@ void Tree::print()
 {
     for (const Event &event : event_list)
     {
-        int temp_parent = event.parent_id;
-        printf("%5d | parent: %5d | time: %6zu + %6zu | %s",
+        printf("%5d | parent: %5d | time: %" PRIi64 " + %d | %s",
                event.event_id,
                event.parent_id,
                event.timestamp - start_time,
                event.duration,
                string_table[event.name].c_str());
+        // int temp_parent = event.parent_id;
         // while (temp_parent != -1)
         // {
         //     std::string func_name = string_table[event_list[temp_parent].name];

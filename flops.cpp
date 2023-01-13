@@ -1,8 +1,8 @@
 #include "util/flops.h"
 
-Flops::Flops(const uint64_t &timestamp,
+Flops::Flops(const int &timestamp,
              const float &gpu_fp32active,
-             const uint64_t &duration)
+             const int &duration)
 {
     this->timestamp = timestamp;
     this->gpu_fp32active = gpu_fp32active;
