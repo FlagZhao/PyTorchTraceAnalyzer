@@ -4,8 +4,8 @@ Event::Event(const int &cat,
              const int &name,
              const int &pid,
              const int &tid,
-             const uint64_t &timestamp,
-             const uint64_t &duration,
+             const int64_t &timestamp,
+             const int &duration,
              const int &args_id)
 {
     this->cat = cat;

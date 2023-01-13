@@ -10,7 +10,7 @@ class Tree
 public:
     std::vector<Event> event_list;
     std::vector<std::string> string_table;
-    uint64_t start_time;
+    int64_t start_time;
     Tree();
     ~Tree();
     void build(const std::string &data);

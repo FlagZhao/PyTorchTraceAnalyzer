@@ -19,10 +19,10 @@ int main()
     Metrics metrics;
     metrics.readFromFile(path);
 
-    uint64_t lookup_start;
-    uint64_t lookup_end;
-    uint64_t iter_length = (metrics.end_time - metrics.start_time) / 10;
-    printf("Each iteration is %zu us long.\n", iter_length);
+    int lookup_start;
+    int lookup_end;
+    int iter_length = (metrics.end_time - metrics.start_time) / 10;
+    printf("Each iteration is %d us long.\n", iter_length);
     printf("Please input lookup time range: ");
     std::cin >> lookup_start >> lookup_end;
 
