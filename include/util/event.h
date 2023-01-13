@@ -21,6 +21,7 @@ public:
     int64_t timestamp;
     int duration;
     int args_id;
+    int correlation;
     int parent_id;
     int event_id;
     Event(const Cat &cat,
@@ -29,7 +30,8 @@ public:
           const int &tid,
           const int64_t &timestamp,
           const int &duration,
-          const int &args_id);
+          const int &args_id,
+          const int &correlation);
     ~Event();
     bool operator<(const Event &event);
 };
