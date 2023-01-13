@@ -80,11 +80,20 @@ void Tree::build(const std::string &data)
 
         Event event(cat_id, name_id, pid, tid, timestamp, duration, args_id);
 
-        event_list.push_back(event);
+        switch (pid)
+        {
+        case 0:
+            kernel_list.push_back(event);
+            break;
+        default:
+            event_list.push_back(event);
+        }
     }
     printf("size of event list is %zu\n", event_list.size());
+    printf("size of kernel list is %zu\n", kernel_list.size());
 
     std::sort(event_list.begin(), event_list.end());
+    std::sort(kernel_list.begin(), kernel_list.end());
 
     start_time = event_list.begin()->timestamp;
     printf("start time: %" PRIi64 "\n", start_time);

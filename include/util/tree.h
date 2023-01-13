@@ -9,6 +9,7 @@ class Tree
 {
 public:
     std::vector<Event> event_list;
+    std::vector<Event> kernel_list;
     std::vector<std::string> string_table;
     int64_t start_time;
     Tree();
