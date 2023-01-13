@@ -6,8 +6,16 @@
 class Event
 {
 public:
-    int cat;
-    int name;
+    enum Cat
+    {
+        none,
+        python_function,
+        cpu_op,
+        cuda_runtime,
+        kernel
+    };
+    Cat cat;
+    int name_id;
     int pid;
     int tid;
     int64_t timestamp;
@@ -15,8 +23,8 @@ public:
     int args_id;
     int parent_id;
     int event_id;
-    Event(const int &cat,
-          const int &name,
+    Event(const Cat &cat,
+          const int &name_id,
           const int &pid,
           const int &tid,
           const int64_t &timestamp,

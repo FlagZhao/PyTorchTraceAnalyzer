@@ -1,7 +1,7 @@
 #include "util/event.h"
 
-Event::Event(const int &cat,
-             const int &name,
+Event::Event(const Cat &cat,
+             const int &name_id,
              const int &pid,
              const int &tid,
              const int64_t &timestamp,
@@ -9,7 +9,7 @@ Event::Event(const int &cat,
              const int &args_id)
 {
     this->cat = cat;
-    this->name = name;
+    this->name_id = name_id;
     this->pid = pid;
     this->tid = tid;
     this->timestamp = timestamp;

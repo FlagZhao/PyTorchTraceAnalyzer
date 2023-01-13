@@ -9,12 +9,14 @@ class Tree
 {
 public:
     std::vector<Event> event_list;
+    std::vector<Event> kernel_list;
     std::vector<std::string> string_table;
     int64_t start_time;
     Tree();
     ~Tree();
-    void build(const std::string &data);
-    void buildFromFile(const std::string &path);
+    void read(const std::string &data);
+    void readFromFile(const std::string &path);
+    void build();
     void print();
 };
 

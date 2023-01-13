@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <fstream>
 
+using namespace std::string_literals;
 using namespace rapidjson;
 
 Tree::Tree()
@@ -26,7 +27,7 @@ std::string stringify(const T &o)
     return sb.GetString();
 }
 
-void Tree::build(const std::string &data)
+void Tree::read(const std::string &data)
 {
     Document d;
     d.Parse(data.c_str());
@@ -50,7 +51,13 @@ void Tree::build(const std::string &data)
         auto name = name_pair->value.GetString();
 
         auto cat_pair = iter_trace.FindMember("cat");
-        auto cat = cat_pair->value.GetString();
+        auto cat_str = std::string(cat_pair->value.GetString());
+        auto cat =
+            cat_str == "python_function"s ? Event::python_function
+            : cat_str == "cpu_op"s        ? Event::cpu_op
+            : cat_str == "cuda_runtime"s  ? Event::cuda_runtime
+            : cat_str == "kernel"s        ? Event::kernel
+                                          : Event::none;
 
         auto pid_pair = iter_trace.FindMember("pid");
         auto pid = pid_pair->value.GetType() == kNumberType
@@ -71,23 +78,35 @@ void Tree::build(const std::string &data)
         auto args_pair = iter_trace.FindMember("args");
         auto args = stringify<>(args_pair->value);
 
-        int cat_id = string_id++;
-        string_table.push_back(cat);
         int name_id = string_id++;
         string_table.push_back(name);
         int args_id = string_id++;
         string_table.push_back(args);
 
-        Event event(cat_id, name_id, pid, tid, timestamp, duration, args_id);
+        Event event(cat, name_id, pid, tid, timestamp, duration, args_id);
 
-        event_list.push_back(event);
+        switch (cat)
+        {
+        case Event::kernel:
+            kernel_list.push_back(event);
+            break;
+        case Event::none:
+            if (tid_pair->value.GetType() == kStringType &&
+                std::string(tid_pair->value.GetString()) == "PyTorch Profiler"s)
+            {
+                start_time = event.timestamp;
+                printf("start time: %" PRIi64 "\n", start_time);
+            }
+            break;
+        default:
+            event_list.push_back(event);
+        }
     }
     printf("size of event list is %zu\n", event_list.size());
+    printf("size of kernel list is %zu\n", kernel_list.size());
 
     std::sort(event_list.begin(), event_list.end());
-
-    start_time = event_list.begin()->timestamp;
-    printf("start time: %" PRIi64 "\n", start_time);
+    std::sort(kernel_list.begin(), kernel_list.end());
 
     int eventid = 0;
     int64_t lasttimestamp = 0;
@@ -105,7 +124,18 @@ void Tree::build(const std::string &data)
         i.event_id = eventid++;
     }
     printf("total event num is %d\n", eventid);
+}
 
+void Tree::readFromFile(const std::string &path)
+{
+    std::string data;
+    std::ifstream ifile(path, std::ios::in);
+    std::getline(ifile, data, '\0');
+    read(data);
+}
+
+void Tree::build()
+{
     std::vector<Event> event_stack;
     for (Event &i : event_list)
     {
@@ -138,22 +168,14 @@ void Tree::print()
                event.parent_id,
                event.timestamp - start_time,
                event.duration,
-               string_table[event.name].c_str());
+               string_table[event.name_id].c_str());
         // int temp_parent = event.parent_id;
         // while (temp_parent != -1)
         // {
-        //     std::string func_name = string_table[event_list[temp_parent].name];
+        //     std::string func_name = string_table[event_list[temp_parent].name_id];
         //     printf(" | %s", func_name.c_str());
         //     temp_parent = event_list[temp_parent].parent_id;
         // }
         printf("\n");
     }
-}
-
-void Tree::buildFromFile(const std::string &path)
-{
-    std::string data;
-    std::ifstream ifile(path, std::ios::in);
-    std::getline(ifile, data, '\0');
-    this->build(data);
 }
