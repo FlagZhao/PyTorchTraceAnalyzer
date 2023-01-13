@@ -78,12 +78,19 @@ void Tree::read(const std::string &data)
         auto args_pair = iter_trace.FindMember("args");
         auto args = stringify<>(args_pair->value);
 
+        int correlation = -1;
+        if (cat == Event::cuda_runtime || cat == Event::kernel)
+        {
+            auto correlation_pair = args_pair->value.FindMember("correlation");
+            correlation = correlation_pair->value.GetInt();
+        }
+
         int name_id = string_id++;
         string_table.push_back(name);
         int args_id = string_id++;
         string_table.push_back(args);
 
-        Event event(cat, name_id, pid, tid, timestamp, duration, args_id);
+        Event event(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
 
         switch (cat)
         {
