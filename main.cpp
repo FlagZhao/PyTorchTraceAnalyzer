@@ -43,7 +43,7 @@ int main()
 
     path = "resnet18_all_metrics.train.csv"s;
     Metrics metrics;
-    metrics.readFromFile(path);
+    metrics.readFromFile(path, 10);
 
     std::string func_name;
     printf("Enter function name: ");
