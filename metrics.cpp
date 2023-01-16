@@ -12,8 +12,10 @@ Metrics::~Metrics()
 {
 }
 
-bool Metrics::readFromFile(const std::string &path)
+bool Metrics::readFromFile(const std::string &path, const int &iter_count)
 {
+    this->iter_count = iter_count;
+
     std::ifstream ifile(path, std::ios::in);
     std::string line;
 
@@ -33,8 +35,7 @@ bool Metrics::readFromFile(const std::string &path)
         float gpu_fp32active = std::stof(gpu_fp32active_str);
         int duration = static_cast<int>(std::stof(duration_str) * 1000);
 
-        Flops flops(timestamp, gpu_fp32active, duration);
-        flops_list.push_back(flops);
+        flops_list.emplace_back(timestamp, gpu_fp32active, duration);
     }
 
     for (auto i = flops_list.begin(); i < flops_list.end(); i++)
@@ -70,7 +71,7 @@ bool Metrics::readFromFile(const std::string &path)
 double Metrics::lookup(const int &lookup_start, const int &lookup_end)
 {
     double fp32active_sum = 0;
-    int iter_length = (end_time - start_time) / 10;
+    int iter_length = (end_time - start_time) / iter_count;
 
     // Lookup time range projected to the first iteration
     int iter_start = start_time + lookup_start;
@@ -96,7 +97,7 @@ double Metrics::lookup(const int &lookup_start, const int &lookup_end)
             continue;
         }
     }
-    return fp32active_sum / (lookup_end - lookup_start) / 10;
+    return fp32active_sum / (lookup_end - lookup_start) / iter_count;
 }
 
 void Metrics::print()

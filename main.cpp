@@ -43,50 +43,45 @@ int main()
 
     path = "resnet18_all_metrics.train.csv"s;
     Metrics metrics;
-    metrics.readFromFile(path);
+    metrics.readFromFile(path, 10);
 
     std::string func_name;
     printf("Enter function name: ");
     std::getline(std::cin, func_name);
 
-    std::vector<int> cuda_id_list;
-    int found_times = 0;
-    for (int i = 0; i < tree.event_list.size(); i++)
+    std::vector<Event *> cuda_ptr_list;
+    int found_count = 0;
+    for (auto i = tree.event_list.begin(); i < tree.event_list.end(); i++)
     {
-        Event &event = tree.event_list[i];
-        if (tree.string_table[event.name_id] == func_name)
+        if (tree.string_table[i->name_id] == func_name)
         {
-            found_times++;
-            const int64_t end_time = event.timestamp + event.duration - tree.start_time;
-            for (i++;
-                 tree.event_list[i].timestamp - tree.start_time < end_time &&
-                 i < tree.event_list.size();
-                 i++)
+            found_count++;
+            const int64_t end_time = i->timestamp + i->duration;
+            for (i++; i < tree.event_list.end() && i->timestamp < end_time; i++)
             {
-                event = tree.event_list[i];
-                if (event.cat == Event::cuda_runtime)
+                if (i->cat == Event::cuda_runtime)
                 {
-                    cuda_id_list.push_back(i);
+                    cuda_ptr_list.push_back(&*i);
                 }
             }
             i--; // Go back to the last child function
         }
     }
 
-    if (found_times)
+    if (found_count)
     {
         printf("Function found\n");
-        if (cuda_id_list.size())
+        if (cuda_ptr_list.size())
         {
-            int i = 0;
+            auto i = cuda_ptr_list.begin();
             for (const Event &kernel : tree.kernel_list)
             {
-                const Event &cuda = tree.event_list[cuda_id_list[i]];
-                if (cuda.correlation == kernel.correlation)
+                if (i < cuda_ptr_list.end() &&
+                    (*i)->correlation == kernel.correlation)
                 {
                     printf("%s: %d\n",
-                           tree.string_table[cuda.name_id].c_str(),
-                           cuda.correlation);
+                           tree.string_table[(*i)->name_id].c_str(),
+                           (*i)->correlation);
                     i++;
                 }
             }
