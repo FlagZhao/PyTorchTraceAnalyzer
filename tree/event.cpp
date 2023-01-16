@@ -1,4 +1,4 @@
-#include "util/event.h"
+#include "event.h"
 
 Event::Event(const Cat &cat,
              const int &name_id,

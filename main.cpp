@@ -1,5 +1,5 @@
-#include "util/metrics.h"
-#include "util/tree.h"
+#include "metrics/metrics.h"
+#include "tree/tree.h"
 
 #include <string>
 #include <iostream>

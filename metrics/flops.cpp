@@ -1,4 +1,4 @@
-#include "util/flops.h"
+#include "flops.h"
 
 Flops::Flops(const int &timestamp,
              const float &gpu_fp32active,
