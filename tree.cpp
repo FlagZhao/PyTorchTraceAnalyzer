@@ -31,9 +31,6 @@ void Tree::read(const std::string &data)
 {
     Document d;
     d.Parse(data.c_str());
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    d.Accept(writer);
 
     auto traces = d.FindMember("traceEvents");
     int string_id = 0;
