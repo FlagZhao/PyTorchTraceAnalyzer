@@ -35,8 +35,7 @@ bool Metrics::readFromFile(const std::string &path, const int &iter_count)
         float gpu_fp32active = std::stof(gpu_fp32active_str);
         int duration = static_cast<int>(std::stof(duration_str) * 1000);
 
-        Flops flops(timestamp, gpu_fp32active, duration);
-        flops_list.push_back(flops);
+        flops_list.emplace_back(timestamp, gpu_fp32active, duration);
     }
 
     for (auto i = flops_list.begin(); i < flops_list.end(); i++)

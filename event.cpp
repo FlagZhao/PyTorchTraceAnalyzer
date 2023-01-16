@@ -27,14 +27,14 @@ Event::~Event()
 
 bool Event::operator<(const Event &event)
 {
-    if (this->timestamp == event.timestamp)
+    if (timestamp == event.timestamp)
     {
         // long duration first
-        return this->duration > event.duration;
+        return duration > event.duration;
     }
     else
     {
         // early start first
-        return this->timestamp < event.timestamp;
+        return timestamp < event.timestamp;
     }
 }

@@ -73,7 +73,7 @@ void Tree::read(const std::string &data)
         auto duration = duration_pair->value.GetInt();
 
         auto args_pair = iter_trace.FindMember("args");
-        auto args = stringify<>(args_pair->value);
+        auto args = stringify<Value>(args_pair->value);
 
         int correlation = -1;
         if (cat == Event::cuda_runtime || cat == Event::kernel)
@@ -87,23 +87,21 @@ void Tree::read(const std::string &data)
         int args_id = string_id++;
         string_table.push_back(args);
 
-        Event event(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
-
         switch (cat)
         {
         case Event::kernel:
-            kernel_list.push_back(event);
+            kernel_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
             break;
         case Event::none:
             if (tid_pair->value.GetType() == kStringType &&
                 std::string(tid_pair->value.GetString()) == "PyTorch Profiler"s)
             {
-                start_time = event.timestamp;
+                start_time = timestamp;
                 printf("start time: %" PRIi64 "\n", start_time);
             }
             break;
         default:
-            event_list.push_back(event);
+            event_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
         }
     }
     printf("size of event list is %zu\n", event_list.size());
@@ -140,25 +138,25 @@ void Tree::readFromFile(const std::string &path)
 
 void Tree::build()
 {
-    std::vector<Event> event_stack;
+    std::vector<Event *> event_stack;
     for (Event &i : event_list)
     {
         if (event_stack.size() == 0)
         {
-            event_stack.push_back(i);
+            event_stack.push_back(&i);
         }
         else
         {
             auto tail = event_stack.end() - 1;
-            while (tail->timestamp + tail->duration < i.timestamp + i.duration &&
+            while ((*tail)->timestamp + (*tail)->duration < i.timestamp + i.duration &&
                    event_stack.size() > 0)
             {
                 event_stack.pop_back();
                 tail = event_stack.end() - 1;
             }
 
-            i.parent_id = tail->event_id;
-            event_stack.push_back(i);
+            i.parent_id = (*tail)->event_id;
+            event_stack.push_back(&i);
         }
     }
 }
