@@ -98,6 +98,8 @@ void Tree::read(const std::string &data)
             {
                 start_time = timestamp;
                 printf("start time: %" PRIi64 "\n", start_time);
+                this->duration = duration;
+                printf("duration: %d\n", duration);
             }
             break;
         default:

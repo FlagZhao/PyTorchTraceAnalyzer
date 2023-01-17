@@ -12,6 +12,7 @@ public:
     std::vector<Event> kernel_list;
     std::vector<std::string> string_table;
     int64_t start_time;
+    int duration;
     Tree();
     ~Tree();
     void read(const std::string &data);
