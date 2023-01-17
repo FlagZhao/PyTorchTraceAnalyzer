@@ -1,4 +1,5 @@
 #include "metrics/metrics.h"
+#include "query/query.h"
 #include "tree/tree.h"
 
 #include <string>
@@ -35,66 +36,23 @@ int main()
 {
     std::string path;
 
-    path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json"s;
+    // path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json"s;
+    path = "a100-test-runner_1561923.eval.1673890226890.pt.trace.json"s;
     Tree tree;
     tree.readFromFile(path);
     tree.build();
     // tree.print();
 
-    path = "resnet18_all_metrics.train.csv"s;
+    // path = "resnet18_all_metrics.train.csv"s;
+    path = "speech_transformer_all_metrics.eval.csv"s;
     Metrics metrics;
     metrics.readFromFile(path, 10);
 
-    std::string func_name;
-    printf("Enter function name: ");
-    std::getline(std::cin, func_name);
+    // std::string func_name = "nn.Module: CrossEntropyLoss_0"s;
+    std::string func_name = "aten::zeros"s;
 
-    std::vector<Event *> cuda_ptr_list;
-    int found_count = 0;
-    for (auto i = tree.event_list.begin(); i < tree.event_list.end(); i++)
-    {
-        if (tree.string_table[i->name_id] == func_name)
-        {
-            found_count++;
-            const int64_t end_time = i->timestamp + i->duration;
-            for (i++; i < tree.event_list.end() && i->timestamp < end_time; i++)
-            {
-                if (i->cat == Event::cuda_runtime)
-                {
-                    cuda_ptr_list.push_back(&*i);
-                }
-            }
-            i--; // Go back to the last child function
-        }
-    }
-
-    if (found_count)
-    {
-        printf("Function found\n");
-        if (cuda_ptr_list.size())
-        {
-            auto i = cuda_ptr_list.begin();
-            for (const Event &kernel : tree.kernel_list)
-            {
-                if (i < cuda_ptr_list.end() &&
-                    (*i)->correlation == kernel.correlation)
-                {
-                    printf("%s: %d\n",
-                           tree.string_table[(*i)->name_id].c_str(),
-                           (*i)->correlation);
-                    i++;
-                }
-            }
-        }
-        else
-        {
-            printf("This function does not invoke kernel\n");
-        }
-    }
-    else
-    {
-        printf("Function not found");
-    }
+    float fp32active = query(tree, metrics, func_name);
+    printf("%f\n", fp32active);
 
     return 0;
 }
