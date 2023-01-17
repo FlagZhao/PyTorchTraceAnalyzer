@@ -4,7 +4,9 @@
 
 #include <iostream>
 
-float query(const Tree &tree, Metrics &metrics, const std::string func_name)
+float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
+            const UsageQueryType &usage_query_type,
+            const TimeQueryType &time_query_type)
 {
     std::vector<Event *> cuda_ptr_list;
     int found_count = 0;
