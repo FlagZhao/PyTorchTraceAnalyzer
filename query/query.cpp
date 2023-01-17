@@ -41,31 +41,34 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
         }
     }
 
-    if (found_count)
+    if (usage_query_type == KernelUsage || time_query_type == KernelTime)
     {
-        auto i = cuda_ptr_list.begin();
-        for (const Event &kernel : tree.kernel_list)
+        if (found_count)
         {
-            if (i < cuda_ptr_list.end() &&
-                (*i)->correlation == kernel.correlation)
+            auto i = cuda_ptr_list.begin();
+            for (const Event &kernel : tree.kernel_list)
             {
-                if (usage_query_type == KernelUsage)
+                if (i < cuda_ptr_list.end() &&
+                    (*i)->correlation == kernel.correlation)
                 {
-                    int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
-                    int lookup_end = (kernel.timestamp - tree.start_time) * scale;
-                    fp32active_sum += metrics.lookup(lookup_start, lookup_end) * kernel.duration;
+                    if (usage_query_type == KernelUsage)
+                    {
+                        int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
+                        int lookup_end = (kernel.timestamp - tree.start_time) * scale;
+                        fp32active_sum += metrics.lookup(lookup_start, lookup_end) * kernel.duration;
+                    }
+                    if (time_query_type == KernelTime)
+                    {
+                        duration_sum += kernel.duration;
+                    }
+                    i++;
                 }
-                if (time_query_type == KernelTime)
-                {
-                    duration_sum += kernel.duration;
-                }
-                i++;
             }
         }
-    }
-    else
-    {
-        return 0;
+        else
+        {
+            return 0;
+        }
     }
     float fp32active_avg = fp32active_sum / duration_sum;
     return fp32active_avg;
