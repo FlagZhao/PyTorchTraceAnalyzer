@@ -49,10 +49,10 @@ int main()
     metrics.readFromFile(path, 10);
 
     // std::string func_name = "nn.Module: CrossEntropyLoss_0"s;
-    std::string func_name = "aten::zeros"s;
+    std::string func_name = "aten::zeros|torch"s;
 
-    float fp32active = query(tree, metrics, func_name);
-    printf("%f\n", fp32active);
+    float fp32active = query(tree, metrics, func_name, KernelUsage, KernelTime, FuzzyName);
+    printf("Average fp32active: %f\n", fp32active);
 
     return 0;
 }
