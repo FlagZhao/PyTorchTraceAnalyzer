@@ -2,6 +2,7 @@
 #include "query/query.h"
 #include "tree/tree.h"
 
+#include <chrono>
 #include <string>
 #include <iostream>
 
@@ -49,10 +50,16 @@ int main()
     metrics.readFromFile(path, 10);
 
     // std::string func_name = "nn.Module: CrossEntropyLoss_0"s;
-    std::string func_name = "aten::zeros"s;
+    std::string func_name = "aten::zeros|torch"s;
 
-    float fp32active = query(tree, metrics, func_name);
-    printf("%f\n", fp32active);
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    float fp32active = query(tree, metrics, func_name, KernelUsage, KernelTime, FuzzyName);
+    printf("Average fp32active: %f\n", fp32active);
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float, std::milli> duration = end_time - start_time;
+    printf("Query took %.3fms", duration.count());
 
     return 0;
 }

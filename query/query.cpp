@@ -4,10 +4,22 @@
 
 #include <iostream>
 
-float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
+using namespace std::string_view_literals;
+
+float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             const UsageQueryType &usage_query_type,
-            const TimeQueryType &time_query_type)
+            const TimeQueryType &time_query_type,
+            const NameQueryType &name_query_type)
 {
+    std::vector<std::string_view> query_name_list;
+    if (name_query_type == FuzzyName)
+    {
+        query_name_list = split(query_str, "|"sv);
+    }
+    if (name_query_type == PreciseName)
+    {
+        query_name_list.push_back(query_str);
+    }
     std::vector<Event *> cuda_ptr_list;
     int found_count = 0;
     float fp32active_sum = 0;
@@ -17,8 +29,18 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
                   metrics.iter_count / tree.duration;
     for (auto i = tree.event_list.begin(); i < tree.event_list.end(); i++)
     {
-        if (tree.string_table[i->name_id] == func_name)
+        bool matched = false;
+        for (const std::string_view &query_name : query_name_list)
         {
+            if (name_query_type == FuzzyName && tree.string_table[i->name_id].find(query_name) != std::string::npos ||
+                name_query_type == PreciseName && tree.string_table[i->name_id] == query_name)
+            {
+                matched = true;
+            }
+        }
+        if (matched)
+        {
+            printf("%s\n", tree.string_table[i->name_id].c_str());
             found_count++;
             if (usage_query_type == RangeUsage)
             {
@@ -48,32 +70,60 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
     {
         if (found_count)
         {
-            auto i = cuda_ptr_list.begin();
-            for (const Event &kernel : tree.kernel_list)
+            if (cuda_ptr_list.size())
             {
-                // Find kernel event correlated with the cuda event
-                if (i < cuda_ptr_list.end() &&
-                    (*i)->correlation == kernel.correlation)
+                auto i = cuda_ptr_list.begin();
+                for (const Event &kernel : tree.kernel_list)
                 {
-                    if (usage_query_type == KernelUsage)
+                    // Find kernel event correlated with the cuda event
+                    if (i < cuda_ptr_list.end() &&
+                        (*i)->correlation == kernel.correlation)
                     {
-                        int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
-                        int lookup_end = (kernel.timestamp - tree.start_time) * scale;
-                        fp32active_sum += metrics.lookup(lookup_start, lookup_end) * kernel.duration;
+                        if (usage_query_type == KernelUsage)
+                        {
+                            int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
+                            int lookup_end = (kernel.timestamp - tree.start_time) * scale;
+                            fp32active_sum += metrics.lookup(lookup_start, lookup_end) * kernel.duration;
+                        }
+                        if (time_query_type == KernelTime)
+                        {
+                            duration_sum += kernel.duration;
+                        }
+                        i++;
                     }
-                    if (time_query_type == KernelTime)
-                    {
-                        duration_sum += kernel.duration;
-                    }
-                    i++;
                 }
+            }
+            else
+            {
+                printf("This function does not evoke kernel\n");
+                return 0;
             }
         }
         else
         {
-            return 0;
+            printf("Function not found\n");
         }
     }
     float fp32active_avg = fp32active_sum / duration_sum;
     return fp32active_avg;
+}
+
+std::vector<std::string_view> split(std::string_view sv, std::string_view delims)
+{
+    std::vector<std::string_view> output;
+    size_t first = 0;
+    while (first < sv.size())
+    {
+        const std::size_t second = sv.find_first_of(delims, first);
+        if (first != second)
+        {
+            output.emplace_back(sv.substr(first, second - first));
+        }
+        if (second == std::string_view::npos)
+        {
+            break;
+        }
+        first = second + 1;
+    }
+    return output;
 }
