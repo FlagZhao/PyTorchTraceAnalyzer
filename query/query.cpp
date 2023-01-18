@@ -12,6 +12,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
     int found_count = 0;
     float fp32active_sum = 0;
     float duration_sum = 0;
+    // Scale between gpu trace time and torch trace time
     float scale = static_cast<float>(metrics.end_time - metrics.start_time) /
                   metrics.iter_count / tree.duration;
     for (auto i = tree.event_list.begin(); i < tree.event_list.end(); i++)
@@ -30,6 +31,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
                 duration_sum += i->duration;
             }
             const int64_t end_time = i->timestamp + i->duration;
+            // Find cuda invokes in the following events
             for (i++; i < tree.event_list.end() && i->timestamp < end_time; i++)
             {
                 if (i->cat == Event::cuda_runtime)
@@ -37,7 +39,8 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
                     cuda_ptr_list.push_back((Event *)(&*i));
                 }
             }
-            i--; // Go back to the last child function
+            // Go back to the last child function
+            i--;
         }
     }
 
@@ -48,6 +51,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
             auto i = cuda_ptr_list.begin();
             for (const Event &kernel : tree.kernel_list)
             {
+                // Find kernel event correlated with the cuda event
                 if (i < cuda_ptr_list.end() &&
                     (*i)->correlation == kernel.correlation)
                 {

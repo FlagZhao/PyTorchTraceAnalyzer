@@ -93,6 +93,7 @@ void Tree::read(const std::string &data)
             kernel_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
             break;
         case Event::none:
+            // Find the total time span
             if (tid_pair->value.GetType() == kStringType &&
                 std::string(tid_pair->value.GetString()) == "PyTorch Profiler"s)
             {
@@ -109,6 +110,7 @@ void Tree::read(const std::string &data)
     printf("size of event list is %zu\n", event_list.size());
     printf("size of kernel list is %zu\n", kernel_list.size());
 
+    // Sort events using custom compare rule
     std::sort(event_list.begin(), event_list.end());
     std::sort(kernel_list.begin(), kernel_list.end());
 
@@ -134,6 +136,7 @@ void Tree::readFromFile(const std::string &path)
 {
     std::string data;
     std::ifstream ifile(path, std::ios::in);
+    // Read until the file end
     std::getline(ifile, data, '\0');
     read(data);
 }
@@ -150,6 +153,7 @@ void Tree::build()
         else
         {
             auto tail = event_stack.end() - 1;
+            // Pop events until i's parent
             while ((*tail)->timestamp + (*tail)->duration < i.timestamp + i.duration &&
                    event_stack.size() > 0)
             {

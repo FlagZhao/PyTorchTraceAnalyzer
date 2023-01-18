@@ -40,6 +40,7 @@ bool Metrics::readFromFile(const std::string &path, const int &iter_count)
 
     for (auto i = flops_list.begin(); i < flops_list.end(); i++)
     {
+        // Find first none-zero entry
         if (i->gpu_fp32active > 0)
         {
             start_time = i->timestamp - i->duration;
@@ -49,6 +50,7 @@ bool Metrics::readFromFile(const std::string &path, const int &iter_count)
 
     for (auto i = flops_list.end() - 1; i > flops_list.begin(); i--)
     {
+        // Find last none-zero entry
         if (i->gpu_fp32active > 0)
         {
             end_time = i->timestamp;
@@ -76,20 +78,24 @@ double Metrics::lookup(const int &lookup_start, const int &lookup_end)
     // Lookup time range projected to the first iteration
     int iter_start = start_time + lookup_start;
     int iter_end = start_time + lookup_end;
-    for (const Flops &flops : flops_list)
+    for (auto i = flops_list.begin(); i < flops_list.end(); i++)
     {
-        // Time range of this peice of flops trace
-        const int flops_start = flops.timestamp - flops.duration;
-        const int flops_end = flops.timestamp;
+        // Time range of this entry
+        const int flops_start = i->timestamp - i->duration;
+        const int flops_end = i->timestamp;
+        // If this entry overlapse the lookup time range
         if (flops_end > iter_start && flops_start < iter_end)
         {
-            fp32active_sum += flops.gpu_fp32active *
+            fp32active_sum += i->gpu_fp32active *
                               (std::min(iter_end, flops_end) - std::max(iter_start, flops_start));
+            // If this entry goes beyond the lookup range
             if (flops_end >= iter_end)
             {
                 // Move on to the next iteration
                 iter_start += iter_length;
                 iter_end += iter_length;
+                // Go back to the last entry inside the range
+                i--;
             }
         }
         else
