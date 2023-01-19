@@ -2,6 +2,7 @@
 #include "../metrics/flops.h"
 #include "../tree/event.h"
 
+#include <cstring>
 #include <iostream>
 
 using namespace std::string_view_literals;
@@ -11,7 +12,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             const TimeQueryType &time_query_type,
             const NameQueryType &name_query_type)
 {
-    std::vector<std::string_view> query_name_list;
+    std::vector<std::string> query_name_list;
     if (name_query_type == FuzzyName)
     {
         query_name_list = split(query_str, "|"sv);
@@ -25,15 +26,17 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
     float fp32active_sum = 0;
     float duration_sum = 0;
     // Scale between gpu trace time and torch trace time
-    float scale = static_cast<float>(metrics.end_time - metrics.start_time) /
-                  metrics.iter_count / tree.duration;
+    const float scale = static_cast<float>(metrics.end_time - metrics.start_time) /
+                        metrics.iter_count / tree.duration;
     for (auto i = tree.event_list.begin(); i < tree.event_list.end(); i++)
     {
         bool matched = false;
-        for (const std::string_view &query_name : query_name_list)
+        for (const std::string &query_name : query_name_list)
         {
-            if (name_query_type == FuzzyName && tree.string_table[i->name_id].find(query_name) != std::string::npos ||
-                name_query_type == PreciseName && tree.string_table[i->name_id] == query_name)
+            if (name_query_type == FuzzyName &&
+                    std::strstr(tree.string_table[i->name_id].c_str(), query_name.c_str()) ||
+                name_query_type == PreciseName &&
+                    tree.string_table[i->name_id] == query_name)
             {
                 matched = true;
             }
@@ -66,9 +69,9 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
         }
     }
 
-    if (usage_query_type == KernelUsage || time_query_type == KernelTime)
+    if (found_count)
     {
-        if (found_count)
+        if (usage_query_type == KernelUsage || time_query_type == KernelTime)
         {
             if (cuda_ptr_list.size())
             {
@@ -99,31 +102,32 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
                 return 0;
             }
         }
-        else
-        {
-            printf("Function not found\n");
-        }
+    }
+    else
+    {
+        printf("Function not found\n");
+        return 0;
     }
     float fp32active_avg = fp32active_sum / duration_sum;
     return fp32active_avg;
 }
 
-std::vector<std::string_view> split(std::string_view sv, std::string_view delims)
+std::vector<std::string> split(std::string_view sv, std::string_view delims)
 {
-    std::vector<std::string_view> output;
-    size_t first = 0;
-    while (first < sv.size())
+    std::vector<std::string> output;
+    size_t start = 0;
+    while (start < sv.size())
     {
-        const std::size_t second = sv.find_first_of(delims, first);
-        if (first != second)
+        const std::size_t end = sv.find_first_of(delims, start);
+        if (start != end)
         {
-            output.emplace_back(sv.substr(first, second - first));
+            output.emplace_back(sv.substr(start, end - start));
         }
-        if (second == std::string_view::npos)
+        if (end == std::string_view::npos)
         {
             break;
         }
-        first = second + 1;
+        start = end + 1;
     }
     return output;
 }
