@@ -46,7 +46,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             {
                 int lookup_start = (i->timestamp - tree.start_time - i->duration) * scale;
                 int lookup_end = (i->timestamp - tree.start_time) * scale;
-                fp32active_sum += metrics.lookup(lookup_start, lookup_end) * i->duration;
+                fp32active_sum += metrics.sumup(lookup_start, lookup_end);
             }
             if (time_query_type == RangeTime)
             {
@@ -81,9 +81,9 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
                     {
                         if (usage_query_type == KernelUsage)
                         {
-                            int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
-                            int lookup_end = (kernel.timestamp - tree.start_time) * scale;
-                            fp32active_sum += metrics.lookup(lookup_start, lookup_end) * kernel.duration;
+                            const int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
+                            const int lookup_end = (kernel.timestamp - tree.start_time) * scale;
+                            fp32active_sum += metrics.sumup(lookup_start, lookup_end);
                         }
                         if (time_query_type == KernelTime)
                         {

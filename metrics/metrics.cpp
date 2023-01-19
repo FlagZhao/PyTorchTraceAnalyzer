@@ -70,7 +70,7 @@ bool Metrics::readFromFile(const std::string &path, const int &iter_count)
     }
 }
 
-double Metrics::lookup(const int &lookup_start, const int &lookup_end)
+double Metrics::sumup(const int &lookup_start, const int &lookup_end)
 {
     double fp32active_sum = 0;
     int iter_length = (end_time - start_time) / iter_count;
@@ -103,7 +103,7 @@ double Metrics::lookup(const int &lookup_start, const int &lookup_end)
             continue;
         }
     }
-    return fp32active_sum / (lookup_end - lookup_start) / iter_count;
+    return fp32active_sum / iter_count;
 }
 
 void Metrics::print()
