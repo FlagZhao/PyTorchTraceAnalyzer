@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <fstream>
 
-using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace rapidjson;
 
 Tree::Tree()
@@ -39,7 +39,7 @@ void Tree::read(const std::string &data)
     {
         auto ph_pair = iter_trace.FindMember("ph");
         auto ph = ph_pair->value.GetString();
-        if (std::string(ph) != "X")
+        if (ph[0] != 'X')
         {
             continue;
         }
@@ -48,13 +48,13 @@ void Tree::read(const std::string &data)
         auto name = name_pair->value.GetString();
 
         auto cat_pair = iter_trace.FindMember("cat");
-        auto cat_str = std::string(cat_pair->value.GetString());
+        auto cat_str = std::string_view(cat_pair->value.GetString());
         auto cat =
-            cat_str == "python_function"s ? Event::python_function
-            : cat_str == "cpu_op"s        ? Event::cpu_op
-            : cat_str == "cuda_runtime"s  ? Event::cuda_runtime
-            : cat_str == "kernel"s        ? Event::kernel
-                                          : Event::none;
+            cat_str == "python_function"sv ? Event::python_function
+            : cat_str == "cpu_op"sv        ? Event::cpu_op
+            : cat_str == "cuda_runtime"sv  ? Event::cuda_runtime
+            : cat_str == "kernel"sv        ? Event::kernel
+                                           : Event::none;
 
         auto pid_pair = iter_trace.FindMember("pid");
         auto pid = pid_pair->value.GetType() == kNumberType
@@ -95,7 +95,7 @@ void Tree::read(const std::string &data)
         case Event::none:
             // Find the total time span
             if (tid_pair->value.GetType() == kStringType &&
-                std::string(tid_pair->value.GetString()) == "PyTorch Profiler"s)
+                std::string_view(tid_pair->value.GetString()) == "PyTorch Profiler"sv)
             {
                 start_time = timestamp;
                 printf("start time: %" PRIi64 "\n", start_time);
