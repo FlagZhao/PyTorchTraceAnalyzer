@@ -115,18 +115,8 @@ void Tree::read(const std::string &data)
     std::sort(kernel_list.begin(), kernel_list.end());
 
     int eventid = 0;
-    int64_t lasttimestamp = 0;
     for (Event &i : event_list)
     {
-        if (i.timestamp >= lasttimestamp)
-        {
-            lasttimestamp = i.timestamp;
-        }
-        else
-        {
-            printf("Unordered\n");
-            return;
-        }
         i.event_id = eventid++;
     }
     printf("total event num is %d\n", eventid);
