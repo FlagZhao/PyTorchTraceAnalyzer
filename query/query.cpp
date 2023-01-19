@@ -10,14 +10,14 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             const TimeQueryType &time_query_type,
             const NameQueryType &name_query_type)
 {
-    std::vector<std::string> query_name_list;
+    std::vector<std::string> name_query_list;
     if (name_query_type == FuzzyName)
     {
-        query_name_list = split(query_str, '|');
+        name_query_list = split(query_str, '|');
     }
     if (name_query_type == PreciseName)
     {
-        query_name_list.push_back(query_str);
+        name_query_list.push_back(query_str);
     }
     std::vector<Event *> cuda_ptr_list;
     int found_count = 0;
@@ -28,18 +28,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
                         metrics.iter_count / tree.duration;
     for (auto i = tree.event_list.begin(); i < tree.event_list.end(); i++)
     {
-        bool matched = false;
-        for (const std::string &query_name : query_name_list)
-        {
-            if (name_query_type == FuzzyName &&
-                    std::strstr(tree.string_table[i->name_id].c_str(), query_name.c_str()) ||
-                name_query_type == PreciseName &&
-                    tree.string_table[i->name_id] == query_name)
-            {
-                matched = true;
-            }
-        }
-        if (matched)
+        if (name_match(tree.string_table[i->name_id], name_query_list, name_query_type))
         {
             printf("%s\n", tree.string_table[i->name_id].c_str());
             found_count++;
@@ -128,4 +117,17 @@ std::vector<std::string> split(std::string_view sv, char delims)
         start = end + 1;
     }
     return output;
+}
+
+bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type)
+{
+    for (const std::string &match_str : match_list)
+    {
+        if (match_type == FuzzyName && std::strstr(str.c_str(), match_str.c_str()) ||
+            match_type == PreciseName && str == match_str)
+        {
+            return true;
+        }
+    }
+    return false;
 }
