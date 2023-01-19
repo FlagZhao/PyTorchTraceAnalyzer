@@ -23,4 +23,4 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
             const UsageQueryType &usage_query_type = KernelUsage,
             const TimeQueryType &time_query_type = KernelTime,
             const NameQueryType &name_query_type = PreciseName);
-std::vector<std::string> split(std::string_view sv, std::string_view delims);
+std::vector<std::string> split(std::string_view sv, char delims);

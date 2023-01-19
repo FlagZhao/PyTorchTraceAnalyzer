@@ -5,8 +5,6 @@
 #include <cstring>
 #include <iostream>
 
-using namespace std::string_view_literals;
-
 float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             const UsageQueryType &usage_query_type,
             const TimeQueryType &time_query_type,
@@ -15,7 +13,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
     std::vector<std::string> query_name_list;
     if (name_query_type == FuzzyName)
     {
-        query_name_list = split(query_str, "|"sv);
+        query_name_list = split(query_str, '|');
     }
     if (name_query_type == PreciseName)
     {
@@ -112,7 +110,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
     return fp32active_avg;
 }
 
-std::vector<std::string> split(std::string_view sv, std::string_view delims)
+std::vector<std::string> split(std::string_view sv, char delims)
 {
     std::vector<std::string> output;
     size_t start = 0;
