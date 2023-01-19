@@ -34,8 +34,8 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             found_count++;
             if (usage_query_type == RangeUsage)
             {
-                int lookup_start = (i->timestamp - tree.start_time - i->duration) * scale;
-                int lookup_end = (i->timestamp - tree.start_time) * scale;
+                const int lookup_start = (i->timestamp - tree.start_time - i->duration) * scale;
+                const int lookup_end = (i->timestamp - tree.start_time) * scale;
                 fp32active_sum += metrics.sumup(lookup_start, lookup_end);
             }
             if (time_query_type == RangeTime)
