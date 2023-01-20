@@ -63,23 +63,32 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             if (cuda_ptr_list.size())
             {
                 auto i = cuda_ptr_list.begin();
-                for (const Event &kernel : tree.kernel_list)
+                auto j = tree.kernel_list.begin();
+                while (i < cuda_ptr_list.end() && j < tree.kernel_list.end())
                 {
-                    // Find kernel event correlated with the cuda event
-                    if (i < cuda_ptr_list.end() &&
-                        (*i)->correlation == kernel.correlation)
+                    if ((*i)->correlation > j->correlation)
+                    {
+                        j++;
+                    }
+                    else if ((*i)->correlation < j->correlation)
+                    {
+                        // printf("Cuda %d not found\n", (*i)->correlation);
+                        i++;
+                    }
+                    else if ((*i)->correlation == j->correlation)
                     {
                         if (usage_query_type == KernelUsage)
                         {
-                            const int lookup_start = (kernel.timestamp - tree.start_time - kernel.duration) * scale;
-                            const int lookup_end = (kernel.timestamp - tree.start_time) * scale;
+                            const int lookup_start = (j->timestamp - tree.start_time - j->duration) * scale;
+                            const int lookup_end = (j->timestamp - tree.start_time) * scale;
                             fp32active_sum += metrics.sumup(lookup_start, lookup_end);
                         }
                         if (time_query_type == KernelTime)
                         {
-                            duration_sum += kernel.duration;
+                            duration_sum += j->duration;
                         }
                         i++;
+                        j++;
                     }
                 }
             }
