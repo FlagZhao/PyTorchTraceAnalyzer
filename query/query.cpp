@@ -1,3 +1,4 @@
+#include "function.h"
 #include "query.h"
 #include "../metrics/flops.h"
 #include "../tree/event.h"
@@ -19,10 +20,7 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
     {
         name_query_list.push_back(query_str);
     }
-    std::vector<Event *> cuda_ptr_list;
-    int found_count = 0;
-    float fp32active_sum = 0;
-    float duration_sum = 0;
+    std::vector<Function> function_list;
     // Scale between gpu trace time and torch trace time
     const float scale = static_cast<float>(metrics.end_time - metrics.start_time) /
                         metrics.iter_count / tree.duration;
@@ -30,8 +28,10 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
     {
         if (name_match(tree.string_table[i->name_id], name_query_list, name_query_type))
         {
-            printf("%s\n", tree.string_table[i->name_id].c_str());
-            found_count++;
+            std::string name = tree.string_table[i->name_id];
+            float fp32active_sum = 0;
+            int duration_sum = 0;
+            std::vector<Event *> cuda_ptr_list;
             if (usage_query_type == RangeUsage)
             {
                 const int lookup_start = (i->timestamp - tree.start_time - i->duration) * scale;
@@ -53,18 +53,19 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
             }
             // Go back to the last child function
             i--;
+            function_list.emplace_back(name, cuda_ptr_list, fp32active_sum, duration_sum);
         }
     }
 
-    if (found_count)
+    if (function_list.size())
     {
         if (usage_query_type == KernelUsage || time_query_type == KernelTime)
         {
-            if (cuda_ptr_list.size())
+            for (Function &function : function_list)
             {
-                auto i = cuda_ptr_list.begin();
+                auto i = function.cuda_ptr_list.begin();
                 auto j = tree.kernel_list.begin();
-                while (i < cuda_ptr_list.end() && j < tree.kernel_list.end())
+                while (i < function.cuda_ptr_list.end() && j < tree.kernel_list.end())
                 {
                     if ((*i)->correlation > j->correlation)
                     {
@@ -81,21 +82,16 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
                         {
                             const int lookup_start = (j->timestamp - tree.start_time - j->duration) * scale;
                             const int lookup_end = (j->timestamp - tree.start_time) * scale;
-                            fp32active_sum += metrics.sumup(lookup_start, lookup_end);
+                            function.fp32active_sum += metrics.sumup(lookup_start, lookup_end);
                         }
                         if (time_query_type == KernelTime)
                         {
-                            duration_sum += j->duration;
+                            function.duration_sum += j->duration;
                         }
                         i++;
                         j++;
                     }
                 }
-            }
-            else
-            {
-                printf("This function does not evoke kernel\n");
-                return 0;
             }
         }
     }
@@ -103,6 +99,17 @@ float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
     {
         printf("Function not found\n");
         return 0;
+    }
+    float fp32active_sum = 0;
+    int duration_sum = 0;
+    for (const Function &i : function_list)
+    {
+        (i.cuda_ptr_list.empty() &&
+         (usage_query_type == KernelUsage || time_query_type == KernelTime))
+            ? printf("\"%s\": No kernel invokes\n", i.name.c_str())
+            : printf("\"%s\": %f\n", i.name.c_str(), i.fp32active_sum / i.duration_sum);
+        fp32active_sum += i.fp32active_sum;
+        duration_sum += i.duration_sum;
     }
     float fp32active_avg = fp32active_sum / duration_sum;
     return fp32active_avg;
