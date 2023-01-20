@@ -147,3 +147,19 @@ bool name_match(const std::string &str, const std::vector<std::string> &match_li
     }
     return false;
 }
+
+float query_forward(const Tree &tree, Metrics &metrics,
+                    const UsageQueryType &usage_query_type,
+                    const TimeQueryType &time_query_type,
+                    const NameQueryType &name_query_type)
+{
+    return query(tree, metrics, ": forward", usage_query_type, time_query_type, name_query_type);
+}
+
+float query_backward(const Tree &tree, Metrics &metrics,
+                     const UsageQueryType &usage_query_type,
+                     const TimeQueryType &time_query_type,
+                     const NameQueryType &name_query_type)
+{
+    return query(tree, metrics, ": backward", usage_query_type, time_query_type, name_query_type);
+}
