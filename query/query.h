@@ -26,7 +26,24 @@ float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
             const UsageQueryType &usage_query_type = KernelUsage,
             const TimeQueryType &time_query_type = RangeTime,
             const NameQueryType &name_query_type = PreciseName);
+
 std::vector<std::string> split(std::string_view sv, char delims);
+
 bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type);
+
+float query_forward(const Tree &tree, Metrics &metrics,
+                    const UsageQueryType &usage_query_type = KernelUsage,
+                    const TimeQueryType &time_query_type = RangeTime,
+                    const NameQueryType &name_query_type = PreciseName);
+
+float query_backward(const Tree &tree, Metrics &metrics,
+                     const UsageQueryType &usage_query_type = KernelUsage,
+                     const TimeQueryType &time_query_type = RangeTime,
+                     const NameQueryType &name_query_type = PreciseName);
+
+float query_module(const Tree &tree, Metrics &metrics, const std::string &module_name,
+                   const UsageQueryType &usage_query_type = KernelUsage,
+                   const TimeQueryType &time_query_type = RangeTime,
+                   const NameQueryType &name_query_type = PreciseName);
 
 #endif // QUERY_H
