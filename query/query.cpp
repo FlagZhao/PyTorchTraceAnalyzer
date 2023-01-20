@@ -163,3 +163,11 @@ float query_backward(const Tree &tree, Metrics &metrics,
 {
     return query(tree, metrics, ": backward", usage_query_type, time_query_type, name_query_type);
 }
+
+float query_module(const Tree &tree, Metrics &metrics, const std::string &module_name,
+                   const UsageQueryType &usage_query_type,
+                   const TimeQueryType &time_query_type,
+                   const NameQueryType &name_query_type)
+{
+    return query(tree, metrics, "nn.Module: " + module_name + "_", usage_query_type, time_query_type, name_query_type);
+}
