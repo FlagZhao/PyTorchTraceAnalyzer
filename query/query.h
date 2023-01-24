@@ -1,49 +1,62 @@
 #ifndef QUERY_H
 #define QUERY_H
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#endif
+
 #include "../metrics/metrics.h"
 #include "../tree/tree.h"
 
-enum UsageQueryType
+EXTERNC
 {
-    KernelUsage,
-    RangeUsage
-};
+    __declspec(dllexport) Tree tree;
+    __declspec(dllexport) Metrics metrics;
 
-enum TimeQueryType
-{
-    KernelTime,
-    RangeTime
-};
+    typedef enum
+    {
+        KernelUsage,
+        RangeUsage
+    } UsageQueryType;
 
-enum NameQueryType
-{
-    FuzzyName,
-    PreciseName
-};
+    typedef enum
+    {
+        KernelTime,
+        RangeTime
+    } TimeQueryType;
 
-float query(const Tree &tree, Metrics &metrics, const std::string &func_name,
-            const UsageQueryType &usage_query_type = KernelUsage,
-            const TimeQueryType &time_query_type = RangeTime,
-            const NameQueryType &name_query_type = PreciseName);
+    typedef enum
+    {
+        FuzzyName,
+        PreciseName
+    } NameQueryType;
 
-std::vector<std::string> split(std::string_view sv, char delims);
+    __declspec(dllexport) void init(const char *torch_trace, const char *gpu_trace);
 
-bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type);
+    __declspec(dllexport) float query(const std::string &func_name,
+                                      const UsageQueryType &usage_query_type = KernelUsage,
+                                      const TimeQueryType &time_query_type = RangeTime,
+                                      const NameQueryType &name_query_type = PreciseName);
 
-float query_forward(const Tree &tree, Metrics &metrics,
-                    const UsageQueryType &usage_query_type = KernelUsage,
-                    const TimeQueryType &time_query_type = RangeTime,
-                    const NameQueryType &name_query_type = PreciseName);
+    std::vector<std::string> split(std::string_view sv, char delims);
 
-float query_backward(const Tree &tree, Metrics &metrics,
-                     const UsageQueryType &usage_query_type = KernelUsage,
-                     const TimeQueryType &time_query_type = RangeTime,
-                     const NameQueryType &name_query_type = PreciseName);
+    bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type);
 
-float query_module(const Tree &tree, Metrics &metrics, const std::string &module_name,
-                   const UsageQueryType &usage_query_type = KernelUsage,
-                   const TimeQueryType &time_query_type = RangeTime,
-                   const NameQueryType &name_query_type = PreciseName);
+    __declspec(dllexport) float query_forward(const UsageQueryType &usage_query_type = KernelUsage,
+                                              const TimeQueryType &time_query_type = RangeTime,
+                                              const NameQueryType &name_query_type = PreciseName);
+
+    __declspec(dllexport) float query_backward(const UsageQueryType &usage_query_type = KernelUsage,
+                                               const TimeQueryType &time_query_type = RangeTime,
+                                               const NameQueryType &name_query_type = PreciseName);
+
+    __declspec(dllexport) float query_optimizer(const UsageQueryType &usage_query_type = KernelUsage,
+                                                const TimeQueryType &time_query_type = RangeTime,
+                                                const NameQueryType &name_query_type = PreciseName);
+
+    __declspec(dllexport) float query_module(const UsageQueryType &usage_query_type = KernelUsage,
+                                             const TimeQueryType &time_query_type = RangeTime,
+                                             const NameQueryType &name_query_type = PreciseName);
+}
 
 #endif // QUERY_H

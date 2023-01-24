@@ -6,7 +6,20 @@
 #include <cstring>
 #include <iostream>
 
-float query(const Tree &tree, Metrics &metrics, const std::string &query_str,
+void init(const char *torch_trace, const char *gpu_trace)
+{
+    // path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json";
+    // path = "a100-test-runner_1561923.eval.1673890226890.pt.trace.json"s;
+    tree.readFromFile(torch_trace);
+    tree.build();
+    // tree.print();
+
+    // path = "resnet18_all_metrics.train.csv";
+    // path = "speech_transformer_all_metrics.eval.csv"s;
+    metrics.readFromFile(gpu_trace, 10);
+}
+
+float query(const std::string &query_str,
             const UsageQueryType &usage_query_type,
             const TimeQueryType &time_query_type,
             const NameQueryType &name_query_type)
@@ -148,26 +161,31 @@ bool name_match(const std::string &str, const std::vector<std::string> &match_li
     return false;
 }
 
-float query_forward(const Tree &tree, Metrics &metrics,
-                    const UsageQueryType &usage_query_type,
+float query_forward(const UsageQueryType &usage_query_type,
                     const TimeQueryType &time_query_type,
                     const NameQueryType &name_query_type)
 {
-    return query(tree, metrics, ": forward", usage_query_type, time_query_type, name_query_type);
+    return query(": forward", usage_query_type, time_query_type, name_query_type);
 }
 
-float query_backward(const Tree &tree, Metrics &metrics,
-                     const UsageQueryType &usage_query_type,
+float query_backward(const UsageQueryType &usage_query_type,
                      const TimeQueryType &time_query_type,
                      const NameQueryType &name_query_type)
 {
-    return query(tree, metrics, ": backward", usage_query_type, time_query_type, name_query_type);
+    return query(": backward", usage_query_type, time_query_type, name_query_type);
 }
 
-float query_module(const Tree &tree, Metrics &metrics, const std::string &module_name,
+float query_optimizer(const UsageQueryType &usage_query_type,
+                      const TimeQueryType &time_query_type,
+                      const NameQueryType &name_query_type)
+{
+    return query("torch/optim/optimizer.py", usage_query_type, time_query_type, name_query_type);
+}
+
+float query_module(const std::string &module_name,
                    const UsageQueryType &usage_query_type,
                    const TimeQueryType &time_query_type,
                    const NameQueryType &name_query_type)
 {
-    return query(tree, metrics, "nn.Module: " + module_name + "_", usage_query_type, time_query_type, name_query_type);
+    return query("nn.Module: " + module_name + "_", usage_query_type, time_query_type, name_query_type);
 }
