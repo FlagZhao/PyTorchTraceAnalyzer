@@ -5,13 +5,34 @@
 #define EXTERNC extern "C"
 #endif
 
-#include "../metrics/metrics.h"
-#include "../tree/tree.h"
+#include "metrics.h"
+#include "tree.h"
+
+
+#ifndef _MICROS_H_
+#define _MICROS_H_
+#if defined(_MSC_VER)
+
+#if defined(DB_CREATE_DLL)
+#define _exported __declspec(dllexport) // creator of dll
+#elif defined(DB_USE_DLL)
+#define _exported __declspec(dllimport) // user of dll
+#else
+#define _exported // static lib creator or user
+#endif
+
+#else /* _MSC_VER */
+
+#define _exported
+
+#endif /* _MSC_VER */
+
+#endif /* _MICROS_H_ */
 
 EXTERNC
 {
-    __declspec(dllexport) Tree tree;
-    __declspec(dllexport) Metrics metrics;
+    _exported Tree tree;
+    _exported Metrics metrics;
 
     typedef enum
     {
@@ -31,9 +52,9 @@ EXTERNC
         PreciseName
     } NameQueryType;
 
-    __declspec(dllexport) void init(const char *torch_trace, const char *gpu_trace);
+    _exported void init(const char *torch_trace, const char *gpu_trace);
 
-    __declspec(dllexport) float query(const std::string &func_name,
+    _exported float query(const std::string &func_name,
                                       const UsageQueryType &usage_query_type = KernelUsage,
                                       const TimeQueryType &time_query_type = RangeTime,
                                       const NameQueryType &name_query_type = PreciseName);
@@ -42,19 +63,19 @@ EXTERNC
 
     bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type);
 
-    __declspec(dllexport) float query_forward(const UsageQueryType &usage_query_type = KernelUsage,
+    _exported float query_forward(const UsageQueryType &usage_query_type = KernelUsage,
                                               const TimeQueryType &time_query_type = RangeTime,
                                               const NameQueryType &name_query_type = PreciseName);
 
-    __declspec(dllexport) float query_backward(const UsageQueryType &usage_query_type = KernelUsage,
+    _exported float query_backward(const UsageQueryType &usage_query_type = KernelUsage,
                                                const TimeQueryType &time_query_type = RangeTime,
                                                const NameQueryType &name_query_type = PreciseName);
 
-    __declspec(dllexport) float query_optimizer(const UsageQueryType &usage_query_type = KernelUsage,
+    _exported float query_optimizer(const UsageQueryType &usage_query_type = KernelUsage,
                                                 const TimeQueryType &time_query_type = RangeTime,
                                                 const NameQueryType &name_query_type = PreciseName);
 
-    __declspec(dllexport) float query_module(const UsageQueryType &usage_query_type = KernelUsage,
+    _exported float query_module(const UsageQueryType &usage_query_type = KernelUsage,
                                              const TimeQueryType &time_query_type = RangeTime,
                                              const NameQueryType &name_query_type = PreciseName);
 }

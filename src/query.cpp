@@ -1,7 +1,7 @@
 #include "function.h"
 #include "query.h"
-#include "../metrics/flops.h"
-#include "../tree/event.h"
+#include "flops.h"
+#include "event.h"
 
 #include <cstring>
 #include <iostream>

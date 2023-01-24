@@ -1,7 +1,7 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include "../tree/event.h"
+#include "event.h"
 
 #include <string>
 #include <vector>

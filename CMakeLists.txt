@@ -10,16 +10,16 @@ find_package(RapidJSON REQUIRED)
 
 # print out rapidjson include directories
 message(STATUS "Rapid_INCLUDE_DIRS: ${RapidJSON_INCLUDE_DIRS}")
-include_directories(${RapidJSON_INCLUDE_DIRS})
+include_directories(${RapidJSON_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
 
-file(GLOB metrics CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/metrics/*")
-file(GLOB query CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/query/*")
-file(GLOB tree CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/tree/*")
+# file(GLOB header_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/*")
+file(GLOB src_files CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/src/*")
 
 # add the library
 add_library(Convert SHARED
-    ${metrics}
-    ${query}
-    ${tree}
+    # ${header_files}
+    ${src_files}
     ${Rapidjson_INCLUDE_DIRS}
 )
