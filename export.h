@@ -9,26 +9,11 @@
 #define EXTERNC
 #endif
 
-#ifndef _MICROS_H_
-#define _MICROS_H_
 #if defined(_MSC_VER)
-
-#define DB_CREATE_DLL
-#if defined(DB_CREATE_DLL)
-#define _exported __declspec(dllexport) // creator of dll
-#elif defined(DB_USE_DLL)
-#define _exported __declspec(dllimport) // user of dll
+#define _exported __declspec(dllexport)
 #else
-#define _exported // static lib creator or user
-#endif
-
-#else /* _MSC_VER */
-
 #define _exported
-
-#endif /* _MSC_VER */
-
-#endif /* _MICROS_H_ */
+#endif
 
 EXTERNC
 {
@@ -53,4 +38,4 @@ EXTERNC
                                  const char *time_query_type_str);
 }
 
-#endif /* EXPORT_H */
+#endif // EXPORT_H
