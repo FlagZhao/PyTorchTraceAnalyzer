@@ -1,5 +1,7 @@
 #include "export.h"
 
+#include <cstring>
+
 Query _query;
 
 void init(const char *torch_trace, const char *gpu_trace, int gpu_trace_count)
@@ -21,8 +23,8 @@ float query(const char *func_name,
         : std::strcmp(time_query_type_str, "RangeTime") == 0 ? Query::RangeTime
                                                              : Query::RangeTime;
     Query::NameQueryType name_query_type =
-        std::strcmp(name_query_type_str, "Fuzzyname") == 0     ? Query::FuzzyName
-        : std::strcmp(name_query_type_str, "Precisename") == 0 ? Query::PreciseName
+        std::strcmp(name_query_type_str, "FuzzyName") == 0     ? Query::FuzzyName
+        : std::strcmp(name_query_type_str, "PreciseName") == 0 ? Query::PreciseName
                                                                : Query::PreciseName;
     return _query.query(func_name, usage_query_type, time_query_type, name_query_type);
 }
