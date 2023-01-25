@@ -162,24 +162,21 @@ bool name_match(const std::string &str, const std::vector<std::string> &match_li
 }
 
 float query_forward(const UsageQueryType &usage_query_type,
-                    const TimeQueryType &time_query_type,
-                    const NameQueryType &name_query_type)
+                    const TimeQueryType &time_query_type)
 {
-    return query(": forward", usage_query_type, time_query_type, name_query_type);
+    return query(": forward", usage_query_type, time_query_type, FuzzyName);
 }
 
 float query_backward(const UsageQueryType &usage_query_type,
-                     const TimeQueryType &time_query_type,
-                     const NameQueryType &name_query_type)
+                     const TimeQueryType &time_query_type)
 {
-    return query(": backward", usage_query_type, time_query_type, name_query_type);
+    return query(": backward", usage_query_type, time_query_type, FuzzyName);
 }
 
 float query_optimizer(const UsageQueryType &usage_query_type,
-                      const TimeQueryType &time_query_type,
-                      const NameQueryType &name_query_type)
+                      const TimeQueryType &time_query_type)
 {
-    return query("torch/optim/optimizer.py", usage_query_type, time_query_type, name_query_type);
+    return query("torch/optim/optimizer.py", usage_query_type, time_query_type, FuzzyName);
 }
 
 float query_module(const std::string &module_name,

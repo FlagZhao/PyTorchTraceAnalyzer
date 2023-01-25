@@ -64,16 +64,13 @@ EXTERNC
     bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type);
 
     _exported float query_forward(const UsageQueryType &usage_query_type = KernelUsage,
-                                              const TimeQueryType &time_query_type = RangeTime,
-                                              const NameQueryType &name_query_type = PreciseName);
+                                              const TimeQueryType &time_query_type = RangeTime);
 
     _exported float query_backward(const UsageQueryType &usage_query_type = KernelUsage,
-                                               const TimeQueryType &time_query_type = RangeTime,
-                                               const NameQueryType &name_query_type = PreciseName);
+                                               const TimeQueryType &time_query_type = RangeTime);
 
     _exported float query_optimizer(const UsageQueryType &usage_query_type = KernelUsage,
-                                                const TimeQueryType &time_query_type = RangeTime,
-                                                const NameQueryType &name_query_type = PreciseName);
+                                                const TimeQueryType &time_query_type = RangeTime);
 
     _exported float query_module(const UsageQueryType &usage_query_type = KernelUsage,
                                              const TimeQueryType &time_query_type = RangeTime,
