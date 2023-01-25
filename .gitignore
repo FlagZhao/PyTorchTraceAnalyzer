@@ -13,4 +13,5 @@ _deps
 .vscode
 build
 
-include/rapidjson
+*.csv
+*.json
