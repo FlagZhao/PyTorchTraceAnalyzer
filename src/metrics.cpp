@@ -70,9 +70,9 @@ bool Metrics::readFromFile(const std::string &path, const int &iter_count)
     }
 }
 
-double Metrics::sumup(const int &lookup_start, const int &lookup_end)
+float Metrics::sumup(const int &lookup_start, const int &lookup_end)
 {
-    double fp32active_sum = 0;
+    float fp32active_sum = 0;
     int iter_length = (end_time - start_time) / iter_count;
 
     // Lookup time range projected to the first iteration

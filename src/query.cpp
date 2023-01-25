@@ -56,9 +56,11 @@ float Query::query(const std::string &query_str,
             std::vector<Event *> cuda_ptr_list;
             if (usage_query_type == RangeUsage)
             {
-                const int lookup_start = (i->timestamp - tree.start_time - i->duration) * scale;
-                const int lookup_end = (i->timestamp - tree.start_time) * scale;
-                fp32active_sum += metrics.sumup(lookup_start, lookup_end);
+                const float end_time = static_cast<float>(i->timestamp - tree.start_time);
+                const float lookup_start = (end_time - i->duration) * scale;
+                const float lookup_end = end_time * scale;
+                fp32active_sum += metrics.sumup(static_cast<int>(lookup_start),
+                                                static_cast<int>(lookup_end));
             }
             if (time_query_type == RangeTime)
             {
@@ -102,9 +104,11 @@ float Query::query(const std::string &query_str,
                     {
                         if (usage_query_type == KernelUsage)
                         {
-                            const int lookup_start = (j->timestamp - tree.start_time - j->duration) * scale;
-                            const int lookup_end = (j->timestamp - tree.start_time) * scale;
-                            function.fp32active_sum += metrics.sumup(lookup_start, lookup_end);
+                            const float end_time = static_cast<float>(j->timestamp - tree.start_time);
+                            const float lookup_start = (end_time - j->duration) * scale;
+                            const float lookup_end = end_time * scale;
+                            function.fp32active_sum += metrics.sumup(static_cast<int>(lookup_start),
+                                                                     static_cast<int>(lookup_end));
                         }
                         if (time_query_type == KernelTime)
                         {

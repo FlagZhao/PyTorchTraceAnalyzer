@@ -16,7 +16,7 @@ public:
     Metrics();
     ~Metrics();
     bool readFromFile(const std::string &path, const int &iter_count = 1);
-    double sumup(const int &lookup_start, const int &lookup_end);
+    float sumup(const int &lookup_start, const int &lookup_end);
     void print();
 };
 
