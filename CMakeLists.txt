@@ -5,7 +5,7 @@ project(TorchView)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -no-pie")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -no-pie")
 find_package(RapidJSON REQUIRED)
 
 # print out rapidjson include directories
@@ -22,4 +22,7 @@ add_library(Convert SHARED
     # ${header_files}
     ${src_files}
     ${Rapidjson_INCLUDE_DIRS}
+    "export.h"
+    "export.cpp"
+    # "test.cpp"
 )

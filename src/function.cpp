@@ -3,7 +3,7 @@
 Function::Function(const std::string &name,
                    const std::vector<Event *> &cuda_ptr_list,
                    const float &fp32active_sum,
-                   const float &duration_sum)
+                   const int &duration_sum)
 {
     this->name = name;
     this->cuda_ptr_list = cuda_ptr_list;

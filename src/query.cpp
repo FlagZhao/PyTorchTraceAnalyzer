@@ -6,23 +6,32 @@
 #include <cstring>
 #include <iostream>
 
-void init(const char *torch_trace, const char *gpu_trace)
+Query::Query()
 {
-    // path = "a100-test-runner_1387429.train.1673235521507.pt.trace.json";
-    // path = "a100-test-runner_1561923.eval.1673890226890.pt.trace.json"s;
+}
+
+Query::Query(const char *torch_trace, const char *gpu_trace, const int &gpu_trace_count)
+{
+    init(torch_trace, gpu_trace, gpu_trace_count);
+}
+
+Query::~Query()
+{
+}
+
+void Query::init(const char *torch_trace, const char *gpu_trace, const int &gpu_trace_count)
+{
     tree.readFromFile(torch_trace);
     tree.build();
     // tree.print();
 
-    // path = "resnet18_all_metrics.train.csv";
-    // path = "speech_transformer_all_metrics.eval.csv"s;
-    metrics.readFromFile(gpu_trace, 10);
+    metrics.readFromFile(gpu_trace, gpu_trace_count);
 }
 
-float query(const std::string &query_str,
-            const UsageQueryType &usage_query_type,
-            const TimeQueryType &time_query_type,
-            const NameQueryType &name_query_type)
+float Query::query(const std::string &query_str,
+                   const UsageQueryType &usage_query_type,
+                   const TimeQueryType &time_query_type,
+                   const NameQueryType &name_query_type)
 {
     std::vector<std::string> name_query_list;
     if (name_query_type == FuzzyName)
@@ -128,7 +137,7 @@ float query(const std::string &query_str,
     return fp32active_avg;
 }
 
-std::vector<std::string> split(std::string_view sv, char delims)
+std::vector<std::string> Query::split(std::string_view sv, char delims)
 {
     std::vector<std::string> output;
     size_t start = 0;
@@ -148,7 +157,7 @@ std::vector<std::string> split(std::string_view sv, char delims)
     return output;
 }
 
-bool name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type)
+bool Query::name_match(const std::string &str, const std::vector<std::string> &match_list, const NameQueryType &match_type)
 {
     for (const std::string &match_str : match_list)
     {
@@ -159,33 +168,4 @@ bool name_match(const std::string &str, const std::vector<std::string> &match_li
         }
     }
     return false;
-}
-
-float query_forward(const UsageQueryType &usage_query_type,
-                    const TimeQueryType &time_query_type,
-                    const NameQueryType &name_query_type)
-{
-    return query(": forward", usage_query_type, time_query_type, name_query_type);
-}
-
-float query_backward(const UsageQueryType &usage_query_type,
-                     const TimeQueryType &time_query_type,
-                     const NameQueryType &name_query_type)
-{
-    return query(": backward", usage_query_type, time_query_type, name_query_type);
-}
-
-float query_optimizer(const UsageQueryType &usage_query_type,
-                      const TimeQueryType &time_query_type,
-                      const NameQueryType &name_query_type)
-{
-    return query("torch/optim/optimizer.py", usage_query_type, time_query_type, name_query_type);
-}
-
-float query_module(const std::string &module_name,
-                   const UsageQueryType &usage_query_type,
-                   const TimeQueryType &time_query_type,
-                   const NameQueryType &name_query_type)
-{
-    return query("nn.Module: " + module_name + "_", usage_query_type, time_query_type, name_query_type);
 }
