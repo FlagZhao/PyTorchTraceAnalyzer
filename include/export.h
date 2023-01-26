@@ -1,7 +1,7 @@
 #ifndef EXPORT_H
 #define EXPORT_H
 
-#include "include/query.h"
+#include "query.h"
 
 #ifdef __cplusplus
 #define EXTERNC extern "C"
@@ -9,7 +9,7 @@
 #define EXTERNC
 #endif
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define _exported __declspec(dllexport)
 #else
 #define _exported

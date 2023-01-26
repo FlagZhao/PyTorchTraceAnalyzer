@@ -22,7 +22,5 @@ add_library(Convert SHARED
     # ${header_files}
     ${src_files}
     ${Rapidjson_INCLUDE_DIRS}
-    "export.h"
-    "export.cpp"
     # "test.cpp"
 )
