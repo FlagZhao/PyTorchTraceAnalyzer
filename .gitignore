@@ -13,6 +13,8 @@ _deps
 __pycache__
 
 .vscode
+*.dll
+*.so
 build
 
 *.csv
