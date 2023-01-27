@@ -27,7 +27,7 @@ std::string stringify(const T &o)
     return sb.GetString();
 }
 
-void Tree::read(const std::string &data)
+bool Tree::read(const std::string &data)
 {
     Document d;
     d.Parse(data.c_str());
@@ -120,18 +120,19 @@ void Tree::read(const std::string &data)
         i.event_id = eventid++;
     }
     printf("total event num is %d\n", eventid);
+    return true;
 }
 
-void Tree::readFromFile(const std::string &path)
+bool Tree::readFromFile(const std::string &path)
 {
     std::string data;
     std::ifstream ifile(path, std::ios::in);
     // Read until the file end
     std::getline(ifile, data, '\0');
-    read(data);
+    return read(data);
 }
 
-void Tree::build()
+bool Tree::build()
 {
     std::vector<Event *> event_stack;
     for (Event &i : event_list)
@@ -155,6 +156,7 @@ void Tree::build()
             event_stack.push_back(&i);
         }
     }
+    return true;
 }
 
 void Tree::print()

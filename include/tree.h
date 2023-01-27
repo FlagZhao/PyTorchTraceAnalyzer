@@ -15,9 +15,9 @@ public:
     int duration;
     Tree();
     ~Tree();
-    void read(const std::string &data);
-    void readFromFile(const std::string &path);
-    void build();
+    bool read(const std::string &data);
+    bool readFromFile(const std::string &path);
+    bool build();
     void print();
 };
 

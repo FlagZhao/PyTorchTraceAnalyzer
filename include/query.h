@@ -9,6 +9,7 @@ class Query
 public:
     Tree tree;
     Metrics metrics;
+    bool loaded = false;
 
     typedef enum
     {

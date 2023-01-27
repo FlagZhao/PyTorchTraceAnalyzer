@@ -9,6 +9,11 @@ void init(const char *torch_trace, const char *gpu_trace, int gpu_trace_count)
     _query.init(torch_trace, gpu_trace, gpu_trace_count);
 }
 
+bool loaded()
+{
+    return _query.loaded;
+}
+
 float query(const char *func_name,
             const char *usage_query_type_str,
             const char *time_query_type_str,

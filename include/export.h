@@ -18,6 +18,7 @@
 EXTERNC
 {
     _exported void init(const char *torch_trace, const char *gpu_trace, int gpu_trace_count);
+    _exported bool loaded();
 
     _exported float query(const char *func_name,
                           const char *usage_query_type_str,

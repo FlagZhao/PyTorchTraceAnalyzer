@@ -14,6 +14,7 @@ class Query:
             lib_path = os.path.dirname(__file__) + "/libConvert.so"
 
         self._cdll = ctypes.CDLL(lib_path)
+        self.loaded = False
 
         if len(torch_trace) and len(gpu_trace):
             self._cdll.init.argtypes = [ctypes.c_char_p,
@@ -33,6 +34,8 @@ class Query:
         self._cdll.init(torch_trace.encode("utf-8"),
                         gpu_trace.encode("utf-8"),
                         gpu_trace_count)
+        self._cdll.loaded.restype = ctypes.c_bool
+        self.loaded = self._cdll.loaded()
 
     def query(self, func_name: str,
               usage_query_type: str = "KernelUsage",
