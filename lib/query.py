@@ -16,13 +16,8 @@ class Query:
         self._cdll = ctypes.CDLL(lib_path)
         self.loaded = False
 
-        if len(torch_trace) and len(gpu_trace):
-            self._cdll.init.argtypes = [ctypes.c_char_p,
-                                        ctypes.c_char_p,
-                                        ctypes.c_int]
-            self._cdll.init(torch_trace.encode("utf-8"),
-                            gpu_trace.encode("utf-8"),
-                            gpu_trace_count)
+        if torch_trace != "" and gpu_trace != "":
+            self.init(torch_trace, gpu_trace, gpu_trace_count)
 
     def init(self, torch_trace: str,
              gpu_trace: str,
