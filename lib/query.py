@@ -9,9 +9,9 @@ class Query:
                  gpu_trace_count: int = 1) -> None:
 
         if sys.platform == "win32":
-            lib_path = os.path.dirname(__file__).join("/Convert.dll")
+            lib_path = os.path.dirname(__file__) + "/Convert.dll"
         else:
-            lib_path = os.path.dirname(__file__).join("/libConvert.so")
+            lib_path = os.path.dirname(__file__) + "/libConvert.so"
 
         self.cdll = ctypes.CDLL(lib_path)
 
