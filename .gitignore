@@ -16,6 +16,8 @@ __pycache__
 *.dll
 *.so
 build
+*.egg-info
+dist
 
 *.csv
 *.json

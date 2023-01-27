@@ -27,6 +27,6 @@ add_library(Convert SHARED
 
 # install the library
 add_custom_command(TARGET Convert POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:Convert> ${CMAKE_CURRENT_SOURCE_DIR}/lib/$<TARGET_FILE_NAME:Convert>
-    COMMENT "Copying library to ${CMAKE_CURRENT_SOURCE_DIR}/lib"
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:Convert> ${CMAKE_CURRENT_SOURCE_DIR}/lib/convert/$<TARGET_FILE_NAME:Convert>
+    COMMENT "Copying library to ${CMAKE_CURRENT_SOURCE_DIR}/lib/convert"
 )
