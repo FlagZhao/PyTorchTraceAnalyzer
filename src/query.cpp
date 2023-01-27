@@ -21,11 +21,13 @@ Query::~Query()
 
 void Query::init(const char *torch_trace, const char *gpu_trace, const int &gpu_trace_count)
 {
-    tree.readFromFile(torch_trace);
-    tree.build();
-    // tree.print();
-
-    metrics.readFromFile(gpu_trace, gpu_trace_count);
+    if (tree.readFromFile(torch_trace) &&
+        tree.build() &&
+        metrics.readFromFile(gpu_trace, gpu_trace_count))
+    {
+        loaded = true;
+    }
+    
 }
 
 float Query::query(const std::string &query_str,
@@ -33,6 +35,10 @@ float Query::query(const std::string &query_str,
                    const TimeQueryType &time_query_type,
                    const NameQueryType &name_query_type)
 {
+    if (!loaded)
+    {
+        return -1;
+    }
     std::vector<std::string> name_query_list;
     if (name_query_type == FuzzyName)
     {
