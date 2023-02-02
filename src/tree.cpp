@@ -54,6 +54,7 @@ bool Tree::read(const std::string &data)
             : cat_str == "cpu_op"sv        ? Event::cpu_op
             : cat_str == "cuda_runtime"sv  ? Event::cuda_runtime
             : cat_str == "kernel"sv        ? Event::kernel
+            : cat_str == "gpu_memset"sv    ? Event::gpu_memset
                                            : Event::none;
 
         auto pid_pair = iter_trace.FindMember("pid");
@@ -76,7 +77,9 @@ bool Tree::read(const std::string &data)
         auto args = stringify<Value>(args_pair->value);
 
         int correlation = -1;
-        if (cat == Event::cuda_runtime || cat == Event::kernel)
+        if (cat == Event::cuda_runtime ||
+            cat == Event::kernel ||
+            cat == Event::gpu_memset)
         {
             auto correlation_pair = args_pair->value.FindMember("correlation");
             correlation = correlation_pair->value.GetInt();
@@ -90,7 +93,10 @@ bool Tree::read(const std::string &data)
         switch (cat)
         {
         case Event::kernel:
-            kernel_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
+            gpu_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
+            break;
+        case Event::gpu_memset:
+            gpu_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
             break;
         case Event::none:
             // Find the total time span
@@ -108,11 +114,11 @@ bool Tree::read(const std::string &data)
         }
     }
     printf("size of event list is %zu\n", event_list.size());
-    printf("size of kernel list is %zu\n", kernel_list.size());
+    printf("size of gpu list is %zu\n", gpu_list.size());
 
     // Sort events using custom compare rule
     std::sort(event_list.begin(), event_list.end());
-    std::sort(kernel_list.begin(), kernel_list.end());
+    std::sort(gpu_list.begin(), gpu_list.end());
 
     int eventid = 0;
     for (Event &i : event_list)

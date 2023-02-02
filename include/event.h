@@ -12,7 +12,8 @@ public:
         python_function,
         cpu_op,
         cuda_runtime,
-        kernel
+        kernel,
+        gpu_memset
     };
     Cat cat;
     int name_id;

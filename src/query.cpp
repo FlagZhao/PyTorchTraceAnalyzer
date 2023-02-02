@@ -94,8 +94,8 @@ float Query::query(const std::string &query_str,
             for (Function &function : function_list)
             {
                 auto i = function.cuda_ptr_list.begin();
-                auto j = tree.kernel_list.begin();
-                while (i < function.cuda_ptr_list.end() && j < tree.kernel_list.end())
+                auto j = tree.gpu_list.begin();
+                while (i < function.cuda_ptr_list.end() && j < tree.gpu_list.end())
                 {
                     if ((*i)->correlation > j->correlation)
                     {
