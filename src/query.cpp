@@ -27,7 +27,6 @@ void Query::init(const char *torch_trace, const char *gpu_trace, const int &gpu_
     {
         loaded = true;
     }
-    
 }
 
 float Query::query(const std::string &query_str,
@@ -136,10 +135,9 @@ float Query::query(const std::string &query_str,
     int duration_sum = 0;
     for (const Function &i : function_list)
     {
-        (i.cuda_ptr_list.empty() &&
-         (usage_query_type == KernelUsage || time_query_type == KernelTime))
-            ? printf("\"%s\": No kernel invokes\n", i.name.c_str())
-            : printf("\"%s\": %f\n", i.name.c_str(), i.fp32active_sum / i.duration_sum);
+        i.fp32active_sum
+            ? printf("\"%s\": %f\n", i.name.c_str(), i.fp32active_sum / i.duration_sum)
+            : printf("\"%s\": No kernel invokes\n", i.name.c_str());
         fp32active_sum += i.fp32active_sum;
         duration_sum += i.duration_sum;
     }
