@@ -86,9 +86,9 @@ bool Tree::read(const std::string &data)
         }
 
         int name_id = string_id++;
-        string_table.push_back(name);
+        string_table.emplace_back(name);
         int args_id = string_id++;
-        string_table.push_back(args);
+        string_table.emplace_back(args);
 
         switch (cat)
         {
