@@ -41,10 +41,11 @@ public:
                 const NameQueryType &name_query_type = PreciseName);
 
 private:
-    std::vector<std::string> split(std::string_view sv, char delims);
+    int split_by_char(std::string *buffer, std::string_view sv, char delims);
 
     bool name_match(const std::string &str,
-                    const std::vector<std::string> &match_list,
+                    const std::string *match_array,
+                    const int &match_array_size,
                     const NameQueryType &match_type);
 };
 

@@ -1,6 +1,6 @@
 #include "export.h"
 
-#include <cstring>
+using namespace std::string_view_literals;
 
 Query _query;
 
@@ -20,17 +20,17 @@ float query(const char *func_name,
             const char *name_query_type_str)
 {
     Query::UsageQueryType usage_query_type =
-        std::strcmp(usage_query_type_str, "KernelUsage") == 0  ? Query::KernelUsage
-        : std::strcmp(usage_query_type_str, "RangeUsage") == 0 ? Query::RangeUsage
-                                                               : Query::KernelUsage;
+        usage_query_type_str == "KernelUsage"sv  ? Query::KernelUsage
+        : usage_query_type_str == "RangeUsage"sv ? Query::RangeUsage
+                                                 : Query::KernelUsage;
     Query::TimeQueryType time_query_type =
-        std::strcmp(time_query_type_str, "KernelTime") == 0  ? Query::KernelTime
-        : std::strcmp(time_query_type_str, "RangeTime") == 0 ? Query::RangeTime
-                                                             : Query::RangeTime;
+        time_query_type_str == "KernelTime"sv  ? Query::KernelTime
+        : time_query_type_str == "RangeTime"sv ? Query::RangeTime
+                                               : Query::RangeTime;
     Query::NameQueryType name_query_type =
-        std::strcmp(name_query_type_str, "FuzzyName") == 0     ? Query::FuzzyName
-        : std::strcmp(name_query_type_str, "PreciseName") == 0 ? Query::PreciseName
-                                                               : Query::PreciseName;
+        name_query_type_str == "FuzzyName"sv     ? Query::FuzzyName
+        : name_query_type_str == "PreciseName"sv ? Query::PreciseName
+                                                 : Query::PreciseName;
     return _query.query(func_name, usage_query_type, time_query_type, name_query_type);
 }
 
