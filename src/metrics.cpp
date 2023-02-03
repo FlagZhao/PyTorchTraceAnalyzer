@@ -60,7 +60,7 @@ bool Metrics::readFromFile(const std::string &path, const int &iter_count)
 
     if (start_time < end_time)
     {
-        printf("Trace starts at %d and ends at %d.\n", start_time, end_time);
+        // printf("Trace starts at %d and ends at %d.\n", start_time, end_time);
         return true;
     }
     else
