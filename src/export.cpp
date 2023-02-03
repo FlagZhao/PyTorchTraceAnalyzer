@@ -56,7 +56,7 @@ float query_module(const char *module_name,
                    const char *usage_query_type_str,
                    const char *time_query_type_str)
 {
-    char *func_name = (char *)malloc(sizeof(char) * 0xFF);
+    char func_name[0xFF];
     std::sprintf(func_name, "nn.Module: %s_", module_name);
     return query(func_name, usage_query_type_str, time_query_type_str, "FuzzyName");
 }
