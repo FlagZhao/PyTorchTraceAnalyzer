@@ -33,11 +33,12 @@ Loads and analyzes the traces.
 #### Return value
 An loaded instance of the `Query` class.
 
-### `loaded` variable
+### `loaded` method
 ```python
-convert.Query.loaded
+convert.Query.loaded()
 ```
-Returns if the `Query` class is loaded or not.
+#### Return value
+If the `Query` class is loaded or not.
 
 ### `query` method
 ```python
