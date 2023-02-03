@@ -104,17 +104,17 @@ bool Tree::read(const std::string &data)
                 std::string_view(tid_pair->value.GetString()) == "PyTorch Profiler"sv)
             {
                 start_time = timestamp;
-                printf("start time: %" PRIi64 "\n", start_time);
+                // printf("start time: %" PRIi64 "\n", start_time);
                 this->duration = duration;
-                printf("duration: %d\n", duration);
+                // printf("duration: %d\n", duration);
             }
             break;
         default:
             event_list.emplace_back(cat, name_id, pid, tid, timestamp, duration, args_id, correlation);
         }
     }
-    printf("size of event list is %zu\n", event_list.size());
-    printf("size of gpu list is %zu\n", gpu_list.size());
+    // printf("size of event list is %zu\n", event_list.size());
+    // printf("size of gpu list is %zu\n", gpu_list.size());
 
     // Sort events using custom compare rule
     std::sort(event_list.begin(), event_list.end());
@@ -125,7 +125,7 @@ bool Tree::read(const std::string &data)
     {
         i.event_id = eventid++;
     }
-    printf("total event num is %d\n", eventid);
+    // printf("total event num is %d\n", eventid);
     return true;
 }
 
