@@ -82,10 +82,10 @@ class Query:
                      usage_query_type: str = "KernelUsage",
                      time_query_type: str = "RangeTime") -> float:
 
-        self._cdll.query.argtypes = [ctypes.c_char_p,
-                                     ctypes.c_char_p,
-                                     ctypes.c_char_p]
-        self._cdll.query.restype = ctypes.c_float
+        self._cdll.query_module.argtypes = [ctypes.c_char_p,
+                                            ctypes.c_char_p,
+                                            ctypes.c_char_p]
+        self._cdll.query_module.restype = ctypes.c_float
 
         return self._cdll.query_module(module_name.encode("utf-8"),
                                        usage_query_type.encode("utf-8"),
